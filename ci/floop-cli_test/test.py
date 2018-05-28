@@ -167,7 +167,7 @@ echo "</pre>" >> build-status.html
 aws s3 cp build-status.html s3://docs.forward-loop.com/floopcli/{branch}/status/build-status.html --cache-control max-age=0,no-cache --metadata-directive REPLACE
 
 # clone floopcli repo
-git clone git@github.com:ForwardLoopLLC/floopcli.git floopcli
+git clone https://github.com/ForwardLoopLLC/floopcli.git 
 
 # checkout the commit that was just pushed
 cd floopcli && git checkout {commit}
