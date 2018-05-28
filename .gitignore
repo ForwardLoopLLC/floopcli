@@ -1,8 +1,9 @@
-**/*.egg-info 
+*.egg-info/ 
 **/*.pyc
 **/*.zip
 **/__pycache__*
 dist/
+build/
 .mypy_cache/
 **/.*.swp
 docs/build/
