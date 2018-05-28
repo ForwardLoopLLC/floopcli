@@ -1,0 +1,10 @@
+FROM library/debian:jessie
+RUN apt-get update && apt-get -y install g++
+RUN apt-get install -y cmake libgtest-dev
+RUN cd /usr/src/gtest && \
+        cmake CMakeLists.txt && \
+        make && \
+        cp *.a /usr/lib
+# by default, target source code will be at /floop/ 
+# on the target device run environment
+CMD ["bash", "-c", "/floop/test.sh"]
