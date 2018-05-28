@@ -167,9 +167,9 @@ echo "</pre>" >> build-status.html
 aws s3 cp build-status.html s3://docs.forward-loop.com/floopcli/{branch}/status/build-status.html --cache-control max-age=0,no-cache --metadata-directive REPLACE
 
 # add SSH key for testing
-mkdir -p ~/.ssh/
+mkdir -p /root/.ssh/
 # the SSH_KEY env variable must contain slash-n newline characters
-echo -e "{sshkey}" > ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
+echo -e "{sshkey}" > /root/.ssh/id_rsa && chmod 700 /root/.ssh/id_rsa
 
 # clone floopcli repo
 git clone https://github.com/ForwardLoopLLC/floopcli.git 
