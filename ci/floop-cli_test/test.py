@@ -167,14 +167,7 @@ echo "</pre>" >> build-status.html
 aws s3 cp build-status.html s3://docs.forward-loop.com/floopcli/{branch}/status/build-status.html --cache-control max-age=0,no-cache --metadata-directive REPLACE
 
 # clone floopcli repo
-mkdir -p ~/.ssh/
-# the SSH_KEY env variable must contain slash-n newline characters
-echo -e "{sshkey}" > ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
-cat ~/.ssh/id_rsa
-ssh-keyscan github.com >> ~/.ssh/known_hosts
-GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa' \
-        git clone git@github.com:nickfloop/floop-cli-private.git \
-        floopcli
+git clone git@github.com:ForwardLoopLLC/floopcli.git floopcli
 
 # checkout the commit that was just pushed
 cd floopcli && git checkout {commit}
@@ -212,7 +205,6 @@ trap success EXIT
 '''.format(
         dm0=cores[0],
         dm1=cores[1],
-        sshkey=decrypt('SSH_KEY'),
         commit=commit,
         awskey=decrypt('AWS_ACCESS_KEY_'),
         awssecret=decrypt('AWS_SECRET_KEY_'), 
