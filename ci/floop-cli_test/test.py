@@ -98,6 +98,13 @@ set -e
 # force shutdown and terminate after a time limit, even if processes are running
 shutdown -H 15 
 
+# add SSH key for testing
+mkdir -p /root/.ssh/
+# the SSH_KEY env variable must contain slash-n newline characters
+echo -e "{sshkey}" > /root/.ssh/id_rsa && chmod 700 /root/.ssh/id_rsa
+
+echo "added key to root"
+
 # don't run as root
 su ubuntu
 
@@ -165,11 +172,6 @@ echo "Build Pending" >> build-status.html
 echo "</pre>" >> build-status.html
 # push raw html to s3
 aws s3 cp build-status.html s3://docs.forward-loop.com/floopcli/{branch}/status/build-status.html --cache-control max-age=0,no-cache --metadata-directive REPLACE
-
-# add SSH key for testing
-mkdir -p /root/.ssh/
-# the SSH_KEY env variable must contain slash-n newline characters
-echo -e "{sshkey}" > /root/.ssh/id_rsa && chmod 700 /root/.ssh/id_rsa
 
 # clone floopcli repo
 git clone https://github.com/ForwardLoopLLC/floopcli.git 
