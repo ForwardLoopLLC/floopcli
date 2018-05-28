@@ -166,6 +166,11 @@ echo "</pre>" >> build-status.html
 # push raw html to s3
 aws s3 cp build-status.html s3://docs.forward-loop.com/floopcli/{branch}/status/build-status.html --cache-control max-age=0,no-cache --metadata-directive REPLACE
 
+# add SSH key for testing
+mkdir -p ~/.ssh/
+# the SSH_KEY env variable must contain slash-n newline characters
+echo -e "{sshkey}" > ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
+
 # clone floopcli repo
 git clone https://github.com/ForwardLoopLLC/floopcli.git 
 
@@ -209,6 +214,7 @@ trap success EXIT
         awskey=decrypt('AWS_ACCESS_KEY_'),
         awssecret=decrypt('AWS_SECRET_KEY_'), 
         awsregion=decrypt('AWS_DEFAULT_REGION_'),
+        sshkey=decrypt('SSH_KEY'),
         branch=branch,
         dmstr0=docker_machine_string(cores[0]),
         dmstr1=docker_machine_string(cores[1]),
