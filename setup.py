@@ -8,7 +8,6 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = [
-            'argparse>=1.4.0',
             'pyyaml>=3.12',
             'typing>=3.6.4'
             ]
@@ -35,7 +34,7 @@ extras = {
 
 setup(
     name='floopcli',
-    version='0.0.1a1',
+    version='0.0.1a15',
     description='sensor development and testing tools',
     long_description=long_description,
     long_description_content_type='text/x-rst',
@@ -52,6 +51,7 @@ setup(
     ],
     keywords='sensor development devops',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    package_data={'floopcli' : ['log.yaml']},
     install_requires=install_requires,
     tests_require=tests_require,
     extras_require=extras,
