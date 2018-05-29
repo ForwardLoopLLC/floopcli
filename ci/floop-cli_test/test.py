@@ -189,6 +189,9 @@ cd docs && make html && mkdir -p s3/floopcli/{branch}/ && \
 # check static typing
 mypy --config-file mypy.ini floopcli
 
+# check python 2 compatibility
+mypy --py2 --config-file mypy.ini floopcli
+
 # install docker-machine
 base=https://github.com/docker/machine/releases/download/v0.14.0 &&\
   curl -L $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine &&\

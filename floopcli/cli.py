@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import json
 import logging
@@ -12,6 +13,7 @@ from shutil import copyfile
 from socket import gethostname
 from sys import argv, exit, modules, _getframe
 from time import time
+from typing import TypeVar
 
 from floopcli.config import Config, \
         ConfigFileDoesNotExist, \
@@ -53,7 +55,7 @@ class IncompatibleCommandLineOptions(Exception):
     '''
     pass
 
-def quiet() -> None:
+def quiet(): # type: () -> None
     '''
     Remove console handler from logger to prevent printing to stdout
 
@@ -67,6 +69,9 @@ def quiet() -> None:
         if handler.name == 'console': #type: ignore
             log.removeHandler(handler)
 
+FloopCLIType = TypeVar('FloopCLIType', bound='FloopCLI')
+'''Generic FloopCLI type'''
+
 class FloopCLI(object):
     '''
     CLI entry point, handles all CLI calls
@@ -74,7 +79,7 @@ class FloopCLI(object):
     Parses all CLI commands then calls the appropriate
     class method matching the CLI commands
     '''
-    def __init__(self) -> None:
+    def __init__(self): # type: () -> None
         parser = argparse.ArgumentParser(description='Floop CLI tool',
                 usage=_FLOOP_USAGE_STRING)
         parser.add_argument('--version',
@@ -232,7 +237,7 @@ class FloopCLI(object):
 \tTry to re-create the target core: floop create\n\
 ''')
 
-    def __log(self, level: str, message: str) -> None:
+    def __log(self, level, message): # type: (FloopCLIType, str, str) -> None
         '''
         Wrapper for logging CLI methods that do not interact with targets
 
@@ -250,7 +255,7 @@ class FloopCLI(object):
                     message)
             getattr(logger, level)(message)
 
-    def config(self) -> None:
+    def config(self): # type: (FloopCLIType) -> None
         '''
         Generate default configuration file
         '''
@@ -273,8 +278,10 @@ class FloopCLI(object):
             self.__log('info', 
                     'Copied existing config file {} to backup file: {}'.format(
                 _FLOOP_CONFIG_DEFAULT_FILE, backup_file))
-        makedirs(dirname(_FLOOP_CONFIG_DEFAULT_FILE),
-                exist_ok=True)
+        try:
+            makedirs(dirname(_FLOOP_CONFIG_DEFAULT_FILE))
+        except OSError: # dir exists
+            pass
         with open(_FLOOP_CONFIG_DEFAULT_FILE, 'w') as c:
             # using the default_config attribute is kind of a hack
             json.dump(Config(_FLOOP_CONFIG_DEFAULT_FILE).default_config, c)
@@ -285,7 +292,7 @@ class FloopCLI(object):
             )
         )
 
-    def create(self) -> None:
+    def create(self): # type: (FloopCLIType) -> None
         '''
         Create new Docker Machines for each core in the configuration
         '''
@@ -305,7 +312,7 @@ class FloopCLI(object):
         with Pool() as pool:
             pool.map(partial(create, timeout=timeout), self.cores)
 
-    def ps(self) -> None:
+    def ps(self): # type: (FloopCLIType) -> None
         '''
         Show running applications and tests on all targets
         '''
@@ -321,7 +328,7 @@ class FloopCLI(object):
         with Pool() as pool:
             pool.map(ps, self.cores)
      
-    def logs(self) -> None:
+    def logs(self): # type: (FloopCLIType) -> None
         '''
         Print target logs to the host console
         '''
@@ -344,7 +351,7 @@ class FloopCLI(object):
                 elif not line == '\n':
                     print(line, end="")
 
-    def push(self) -> None:
+    def push(self): # type: (FloopCLIType) -> None
         '''
         Push code from host to all targets
 
@@ -364,7 +371,7 @@ class FloopCLI(object):
         with Pool() as pool:
             pool.map(push, self.cores)
 
-    def build(self) -> None:
+    def build(self): # type: (FloopCLIType) -> None
         '''
         Build code on all targets, using Dockerfile in source directory
 
@@ -384,7 +391,7 @@ class FloopCLI(object):
         with Pool() as pool:
             pool.map(build, self.cores)
 
-    def run(self) -> None:
+    def run(self): # type: (FloopCLIType) -> None
         '''
         Run code on all targets, using Dockerfile in source directory
 
@@ -404,7 +411,7 @@ class FloopCLI(object):
         with Pool()as pool:
             pool.map(run, self.cores)
                 
-    def test(self) -> None:
+    def test(self): # type: (FloopCLIType) -> None
         '''
         Test code on all targets, using Dockerfile.test in source directory
 
@@ -423,7 +430,7 @@ class FloopCLI(object):
         with Pool()as pool:
             pool.map(test, self.cores)
 
-    def destroy(self) -> None:
+    def destroy(self): # type: (FloopCLIType) -> None
         '''
         Destroy project, code, and environment on all targets
 

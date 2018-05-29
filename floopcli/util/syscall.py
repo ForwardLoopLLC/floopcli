@@ -9,7 +9,8 @@ class SystemCallException(Exception):
     '''
     pass
 
-def syscall(command: str, check: bool=False, verbose: bool=False) -> Tuple[str, str]:
+def syscall(command, check=False,
+        verbose=False): # type: (str, bool, bool) -> Tuple[str, str] 
     '''
     Call system to run system command
 
@@ -32,7 +33,7 @@ def syscall(command: str, check: bool=False, verbose: bool=False) -> Tuple[str, 
     command_ = split(command)
     process = subprocess.Popen(command_, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out = ''
-    for line in process.stdout:
+    for line in process.stdout: # type: ignore
         line = line.decode('utf-8')
         out += line
         if verbose:
