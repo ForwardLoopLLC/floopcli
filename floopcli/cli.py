@@ -309,8 +309,9 @@ class FloopCLI(object):
         timeout = 120
         if args.timeout:
             timeout = int(args.timeout)
-        with Pool() as pool:
-            pool.map(partial(create, timeout=timeout), self.cores)
+        pool = Pool()
+        pool.map(partial(create, timeout=timeout), self.cores)
+        pool.terminate()
 
     def ps(self): # type: (FloopCLIType) -> None
         '''
@@ -325,8 +326,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool() as pool:
-            pool.map(ps, self.cores)
+        pool = Pool()
+        pool.map(ps, self.cores)
+        pool.terminate()
      
     def logs(self): # type: (FloopCLIType) -> None
         '''
@@ -368,8 +370,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool() as pool:
-            pool.map(push, self.cores)
+        pool = Pool()
+        pool.map(push, self.cores)
+        pool.terminate()
 
     def build(self): # type: (FloopCLIType) -> None
         '''
@@ -388,8 +391,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool() as pool:
-            pool.map(build, self.cores)
+        pool = Pool()
+        pool.map(build, self.cores)
+        pool.terminate()
 
     def run(self): # type: (FloopCLIType) -> None
         '''
@@ -408,8 +412,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool()as pool:
-            pool.map(run, self.cores)
+        pool = Pool()
+        pool.map(run, self.cores)
+        pool.terminate()
                 
     def test(self): # type: (FloopCLIType) -> None
         '''
@@ -427,8 +432,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool()as pool:
-            pool.map(_test, self.cores)
+        pool = Pool()
+        pool.map(_test, self.cores)
+        pool.terminate()
 
     def destroy(self): # type: (FloopCLIType) -> None
         '''
@@ -444,5 +450,6 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool() as pool:
-            pool.map(destroy, self.cores)
+        pool = Pool()
+        pool.map(destroy, self.cores)
+        pool = Pool()
