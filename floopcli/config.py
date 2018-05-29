@@ -1,6 +1,5 @@
 import json
 
-from json.decoder import JSONDecodeError
 from copy import copy
 from time import time
 from os import rename
@@ -123,7 +122,7 @@ def _read_json(json_file): # type: (str) -> dict
     try:
         with open(json_file) as j:
             return json.load(j)
-    except JSONDecodeError:
+    except ValueError:
         raise MalformedConfigException('Invalid JSON')
 
 ConfigType = TypeVar('ConfigType', bound='Config')

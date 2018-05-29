@@ -6,7 +6,8 @@ from copy import copy
 from os import remove, environ, mkdir
 from os.path import abspath, dirname, isfile, isdir
 
-from shutil import rmtree, which
+from shutil import rmtree
+from distutils.spawn import find_executable as which
 from typing import Dict
 
 from floopcli.config import _FLOOP_CONFIG_DEFAULT_CONFIGURATION
