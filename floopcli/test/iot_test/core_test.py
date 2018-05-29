@@ -2,7 +2,8 @@ import pytest
 import os
 import os.path
 import json
-from shutil import rmtree, which
+from shutil import rmtree
+from distutils.spawn import find_executable as which
 from copy import copy
 from floopcli.util.syscall import syscall
 from floopcli.test.fixture import *
