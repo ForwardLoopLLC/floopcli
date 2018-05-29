@@ -16,6 +16,9 @@ install_requires = [
 tests_require = [
             'pytest>=3.5.1',
             'pytest-cov>=2.5.1',
+            ]
+
+docs_require = [
             'sphinx>=1.7.4',
             'sphinx-tabs>=1.1.7'
             ]
@@ -25,6 +28,7 @@ typing_requires = [
             ]
 
 extras = {
+    'docs' : docs_require,
     'test': tests_require,
     'typing' : typing_requires
 }

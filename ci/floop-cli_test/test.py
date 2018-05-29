@@ -179,21 +179,21 @@ git clone https://github.com/ForwardLoopLLC/floopcli.git
 # checkout the commit that was just pushed
 cd floopcli && git checkout {commit}
 
-# local install floopcli and tests
-sudo pip install -e .[test]
-
-# local install mypy
+# local install typing 
 sudo pip3 install -e .[typing]
-
-# build the docs and move to a named folder for s3
-cd docs && make html && mkdir -p s3/floopcli/{branch}/ && \
-        cp -r build/html/* s3/floopcli/{branch}/ && cd ..
 
 # check static typing
 mypy --config-file mypy.ini floopcli
 
 # check python 2 compatibility
 mypy --py2 --config-file mypy.ini floopcli
+
+# local install floopcli, tests, and docs
+sudo pip install --no-cache-dir --force-reinstall -e .[test,docs]
+
+# build the docs and move to a named folder for s3
+cd docs && make html && mkdir -p s3/floopcli/{branch}/ && \
+        cp -r build/html/* s3/floopcli/{branch}/ && cd ..
 
 # install docker-machine
 base=https://github.com/docker/machine/releases/download/v0.14.0 &&\
