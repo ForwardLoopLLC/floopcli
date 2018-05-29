@@ -10,18 +10,23 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 install_requires = [
             'argparse>=1.4.0',
             'pyyaml>=3.12',
+            'typing>=3.6.4'
             ]
 
 tests_require = [
-            'mypy>=0.0.590',
             'pytest>=3.5.1',
             'pytest-cov>=2.5.1',
             'sphinx>=1.7.4',
             'sphinx-tabs>=1.1.7'
             ]
 
+typing_requires = [
+            'mypy>=0.0.590'
+            ]
+
 extras = {
     'test': tests_require,
+    'typing' : typing_requires
 }
 
 setup(

@@ -20,7 +20,7 @@ from floopcli.config import Config, \
         MalformedConfigException, \
         UnmetHostDependencyException, \
         RedundantCoreConfigException
-from floopcli.iot.core import build, create, destroy, ps, push, run, test, \
+from floopcli.iot.core import build, create, destroy, ps, push, run, _test, \
         CoreSourceNotFound, \
         CoreBuildException, \
         CoreCreateException, \
@@ -428,7 +428,7 @@ class FloopCLI(object):
         if not args.verbose:
             quiet()
         with Pool()as pool:
-            pool.map(test, self.cores)
+            pool.map(_test, self.cores)
 
     def destroy(self): # type: (FloopCLIType) -> None
         '''

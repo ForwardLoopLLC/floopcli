@@ -499,7 +499,8 @@ def ps(core, check=True): # type: (Core, bool) -> None
         __log(core, 'error', str(e))
         raise CorePSException(str(e))
 
-def test(core, check=True): # type: (Core, bool) -> None
+# need to mangle the name to prevent pytest from erroneously discovering 
+def _test(core, check=True): # type: (Core, bool) -> None
     '''
     Parallelizable; push, build, then run test files from host on target core 
 
