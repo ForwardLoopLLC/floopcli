@@ -371,7 +371,7 @@ def create(core, check=True, timeout=120): # type: (Core, bool, int) -> None
             __log(core, 'info', outd)
     except SystemCallException as e:
         __log(core, 'error', 'Create timed out')
-        raise CoreCreateException(str(e))
+        raise CoreCreateException(repr(e))
 
 def push(core, check=True): # type: (Core, bool) -> None
     '''
@@ -407,8 +407,8 @@ def push(core, check=True): # type: (Core, bool) -> None
         out, err = syscall(sync_string, check=check)
         __log(core, 'info', out)
     except SystemCallException as e:
-        __log(core, 'error', str(e))
-        raise CoreCommunicationException(str(e))
+        __log(core, 'error', repr(e))
+        raise CoreCommunicationException(repr(e))
 
 def build(core, check=True): # type: (Core, bool) -> None
     '''
@@ -439,8 +439,8 @@ def build(core, check=True): # type: (Core, bool) -> None
         out = core.run_ssh_command(meta_build_command, check=check, verbose=verbose())
         __log(core, 'info', out)
     except SystemCallException as e:
-        __log(core, 'error', str(e))
-        raise CoreBuildException(str(e))
+        __log(core, 'error', repr(e))
+        raise CoreBuildException(repr(e))
 
 def run(core, check=True): # type: (Core, bool) -> None
     '''
@@ -471,8 +471,8 @@ def run(core, check=True): # type: (Core, bool) -> None
         out = core.run_ssh_command(command=run_command, check=check, verbose=verbose())
         __log(core, 'info', out)
     except SystemCallException as e:
-        __log(core, 'error', str(e))
-        raise CoreRunException(str(e))
+        __log(core, 'error', repr(e))
+        raise CoreRunException(repr(e))
 
 def ps(core, check=True): # type: (Core, bool) -> None
     '''
@@ -496,8 +496,8 @@ def ps(core, check=True): # type: (Core, bool) -> None
         __log(core, 'info', out)
     # TODO: find a case where core initializes but ps fails
     except SystemCallException as e:
-        __log(core, 'error', str(e))
-        raise CorePSException(str(e))
+        __log(core, 'error', repr(e))
+        raise CorePSException(repr(e))
 
 # need to mangle the name to prevent pytest from erroneously discovering 
 def _test(core, check=True): # type: (Core, bool) -> None
@@ -537,8 +537,8 @@ def _test(core, check=True): # type: (Core, bool) -> None
         out = core.run_ssh_command(test_run_command, check=check, verbose=verbose())
         __log(core, 'info', out)
     except SystemCallException as e:
-        __log(core, 'error', str(e))
-        raise CoreTestException(str(e))
+        __log(core, 'error', repr(e))
+        raise CoreTestException(repr(e))
 
 def destroy(core, check=True): # type: (Core, bool) -> None
     '''
@@ -569,5 +569,5 @@ def destroy(core, check=True): # type: (Core, bool) -> None
                 __log(core, 'info', str((out, err)))
     # TODO: find a case where init succeeds but destroy fails, enforce idempotency
     except SystemCallException as e:
-        __log(core, 'error', str(e))
-        raise CoreDestroyException(str(e))
+        __log(core, 'error', repr(e))
+        raise CoreDestroyException(repr(e))

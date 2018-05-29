@@ -173,7 +173,7 @@ class FloopCLI(object):
 \tOptions to fix this error:\n\
 \t--------------------------\n\
 \tEdit config file so all core names and addresses are unique\n\
-'''.format(str(e), config_file))
+'''.format(repr(e), config_file))
         except MalformedConfigException:
             exit('''Error| Config file is malformed: {}\n\n\
 \tOptions to fix this error:\n\
@@ -187,7 +187,7 @@ class FloopCLI(object):
 \tOptions to fix this error:\n\
 \t--------------------------\n\
 \tInstall dependency for your operating system\n\
-'''.format(str(e)))
+'''.format(repr(e)))
         except CoreBuildException as e:
             exit('''Error| Build on target core returned non-zero error\n\n\
 \tOptions to fix this error:\n\

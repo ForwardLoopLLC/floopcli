@@ -64,7 +64,7 @@ def _flatten(config): # type: (dict) -> List[dict]
         return flat_config
     # forces config to have default groups and cores
     except (TypeError, KeyError, AssertionError) as e:
-        raise MalformedConfigException(str(e))
+        raise MalformedConfigException(repr(e))
 
 class CannotSetImmutableAttributeException(Exception):
     '''
@@ -205,7 +205,7 @@ class Config(object):
             try:
                 cores.append(Core(**core))
             except TypeError as e:
-                missing_key = str(e).split(' ')[-1]
+                missing_key = repr(e).split(' ')[-1]
                 err = '{} (core) has no {} (property)'.format(
                         core['core'], missing_key)
                 raise MalformedConfigException(err)
