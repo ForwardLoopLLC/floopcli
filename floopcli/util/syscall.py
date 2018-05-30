@@ -31,21 +31,17 @@ def syscall(command, check=False,
             tuple of command output to (stdout, stderr)
     '''
     command_ = split(command)
-    try:
-        process = subprocess.Popen(command_, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out = ''
-        for line in process.stdout: # type: ignore
-            line = line.decode('utf-8')
-            out += line
-            if verbose:
-                stdout.write(line)
-        _, err = process.communicate()
-        if err is not None:
-            err = err.decode('utf-8')
-        if check:
-            if process.returncode != 0:
-                raise SystemCallException(err)
-        return (out, err)
-    except KeyboardInterrupt:
-        process.terminate()
-        process.join()
+    process = subprocess.Popen(command_, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out = ''
+    for line in process.stdout: # type: ignore
+        line = line.decode('utf-8')
+        out += line
+        if verbose:
+            stdout.write(line)
+    _, err = process.communicate()
+    if err is not None:
+        err = err.decode('utf-8')
+    if check:
+        if process.returncode != 0:
+            raise SystemCallException(err)
+    return (out, err)
