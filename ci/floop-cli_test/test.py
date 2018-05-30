@@ -84,19 +84,6 @@ def lambda_handler(event, context):
             'statusCode': 400,
             'body': json.dumps({'input': event, 'error' : 'No branch?'})
         }
-    # only run CI for when code changes
-    git_event = event['headers']['X-Github-Event']
-    if git_event == 'push':
-        pass
-    #elif git_event == 'pull':
-    #    git_action = body['action']
-    #    if git_action in ['opened', 'edited', 'reopened']:
-    #        pass
-    #else:
-    #    return {
-    #        'statusCode': 200,
-    #        'body': json.dumps({'input': event, 'info' : ''})
-    #    }
         
     ec2 = get_client('ec2')
 
