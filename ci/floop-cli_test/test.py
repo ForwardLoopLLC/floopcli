@@ -30,13 +30,13 @@ def validate_secret(event):
     valid = hmac.compare_digest(digest.encode('utf-8'), sig.encode('utf-8'))
     return valid
 
-    def get_client(service):
-        return boto3.client(
-            service_name = service,
-            region_name = decrypt('AWS_DEFAULT_REGION_'), 
-            aws_access_key_id = decrypt('AWS_ACCESS_KEY_'),
-            aws_secret_access_key = decrypt('AWS_SECRET_KEY_')
-        )
+def get_client(service):
+    return boto3.client(
+        service_name = service,
+        region_name = decrypt('AWS_DEFAULT_REGION_'), 
+        aws_access_key_id = decrypt('AWS_ACCESS_KEY_'),
+        aws_secret_access_key = decrypt('AWS_SECRET_KEY_')
+    )
 
 def docker_machine_name():
     return ''.join(choice(ascii_uppercase) for i in range(16)) + str(int(time()*10000))
