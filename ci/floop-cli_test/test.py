@@ -251,7 +251,7 @@ trap success EXIT
         InstanceType=os.environ.get('DEFAULT_INSTANCE_TYPE') or 't2.nano',
         MinCount=1,
         MaxCount=1,
-        InstanceInitiatedShutdownBehavior='stop',
+        InstanceInitiatedShutdownBehavior='terminate',
         UserData=init_script,
         KeyName='FLOOP_CLI_KEY'
     )
