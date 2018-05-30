@@ -1,7 +1,11 @@
 # based on https://gist.github.com/JesseBuesking/10674086#file-logging-yaml-L10
-from logging.handlers import RotatingFileHandler
-import multiprocessing, threading, logging, sys, traceback
 import os
+import multiprocessing, threading, logging, sys, traceback
+from logging.handlers import RotatingFileHandler
+from typing import TypeVar
+
+LogType = TypeVar('LogType', bound='Log')
+'''Generic Log type'''
 
 class Log(logging.Handler):
     '''
@@ -17,7 +21,7 @@ class Log(logging.Handler):
         rotate (int):
             number of historical log files to retain; defaults to 0
     '''
-    def __init__(self, name: str, mode: str, maxsize: int, rotate: int) -> None:
+    def __init__(self, name, mode, maxsize, rotate): # type: (LogType, str, str, int, int) -> None 
         logging.Handler.__init__(self)
         self._handler = RotatingFileHandler(name, mode, maxsize, rotate)
         self.queue = multiprocessing.Queue(-1) #type: multiprocessing.Queue
@@ -25,7 +29,7 @@ class Log(logging.Handler):
         t.daemon = True
         t.start()
 
-    def setFormatter(self, fmt: logging.Formatter) -> None:
+    def setFormatter(self, fmt): # type: (LogType, logging.Formatter) -> None
         '''
         Set logging formatter
 
@@ -36,7 +40,7 @@ class Log(logging.Handler):
         logging.Handler.setFormatter(self, fmt)
         self._handler.setFormatter(fmt)
 
-    def receive(self) -> None:
+    def receive(self): # type: (LogType) -> None
         '''
         Receive logging records from queue 
 
@@ -55,17 +59,17 @@ class Log(logging.Handler):
             except:
                 traceback.print_exc(file=sys.stderr)
 
-    def send(self, s: logging.LogRecord) -> None:
+    def send(self, s): # type: (LogType, LogRecord) -> None
         '''
         Send logging record to logging queue
 
         Args:
-            s (str):
+            s (:py:class`logging.LogRecord`):
                 record to be logged
         '''
         self.queue.put_nowait(s)
 
-    def _format_record(self, record: logging.LogRecord) -> logging.LogRecord:
+    def _format_record(self, record): # type: (LogType, logging.LogRecord) -> logging.LogRecord
         '''
         Format record to ensure it is pickle-able
 
@@ -84,7 +88,7 @@ class Log(logging.Handler):
             record.exc_info = None
         return record
 
-    def emit(self, record: logging.LogRecord) -> None:
+    def emit(self, record): # type: (LogType, logging.LogRecord) -> None 
         '''
         Format and send record to queue
 
@@ -104,7 +108,7 @@ class Log(logging.Handler):
         except:
             self.handleError(record)
 
-    def close(self) -> None:
+    def close(self): # type: (LogType) -> None
         '''
         Close logger and all associated handlers
         '''

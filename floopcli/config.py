@@ -1,11 +1,12 @@
 import json
+
 from copy import copy
 from time import time
 from os import rename
 from os.path import isdir, isfile
-from shutil import which
-from floopcli.iot.core import Core 
+from distutils.spawn import find_executable as which # should be py2/py3 compatible
 from typing import Any, Dict, List, TypeVar
+from floopcli.iot.core import Core 
 
 # default config to write when using floop config 
 _FLOOP_CONFIG_DEFAULT_CONFIGURATION = {
@@ -31,7 +32,7 @@ _FLOOP_CONFIG_DEFAULT_CONFIGURATION = {
     },
 }
 
-def _flatten(config : dict) -> List[dict]:
+def _flatten(config): # type: (dict) -> List[dict]
     '''
     Flatten floop configuration
 
@@ -63,7 +64,7 @@ def _flatten(config : dict) -> List[dict]:
         return flat_config
     # forces config to have default groups and cores
     except (TypeError, KeyError, AssertionError) as e:
-        raise MalformedConfigException(str(e))
+        raise MalformedConfigException(repr(e))
 
 class CannotSetImmutableAttributeException(Exception):
     '''
@@ -107,7 +108,7 @@ class RedundantCoreConfigException(Exception):
     '''
     pass
 
-def _read_json(json_file : str) -> dict:
+def _read_json(json_file): # type: (str) -> dict
     '''
     Convenient wrapper for reading .json file into dict
 
@@ -121,31 +122,31 @@ def _read_json(json_file : str) -> dict:
     try:
         with open(json_file) as j:
             return json.load(j)
-    except json.decoder.JSONDecodeError:
+    except ValueError:
         raise MalformedConfigException('Invalid JSON')
 
 ConfigType = TypeVar('ConfigType', bound='Config')
 '''Generic self config type for stateful method return'''
 
 class Config(object):
-    def __init__(self, config_file : str) -> None:
+    def __init__(self, config_file): # type: (str) -> None
         self.default_config = _FLOOP_CONFIG_DEFAULT_CONFIGURATION 
         self.config_file = config_file
 
     @property
-    def config(self) -> List[Dict[str, Any]]:
+    def config(self): # type: (ConfigType) -> List[Dict[str, Any]]
         '''
         Flattened configuration read from file
         '''
         return self.__config
 
     @config.setter
-    def config(self, value : List[Dict[str, Any]]) -> None:
+    def config(self, value): # type: (ConfigType, List[Dict[str, Any]]) -> None
         if hasattr(self, 'config'):
             raise CannotSetImmutableAttributeException('config')
         self.__config = value
 
-    def read(self: ConfigType) -> ConfigType:
+    def read(self): # type: (ConfigType) -> ConfigType
         '''
         Read configuration file
 
@@ -171,7 +172,7 @@ class Config(object):
         self.config = config
         return self
 
-    def parse(self) -> List[Core]:
+    def parse(self): # type: (ConfigType) -> List[Core]
         '''
         Parse configuration into list of cores
 
@@ -190,9 +191,13 @@ class Config(object):
         for core in self.config:
             for key, val in core.items():
                 if key.endswith('_bin'):
-                    if not isfile(val) or val is None:
+                    try:
+                        dep_path = isfile(val)
+                        if not dep_path:
+                            raise ValueError
+                    except (ValueError, TypeError):
                         err = 'Dependency {} not found at {}'.format(
-                                key.replace('_bin', ''), val)
+                                key.replace('_bin', ''), str(val))
                         # TODO: test in an environment with unmet dependencies
                         raise UnmetHostDependencyException(err)
         cores = []
@@ -200,7 +205,7 @@ class Config(object):
             try:
                 cores.append(Core(**core))
             except TypeError as e:
-                missing_key = str(e).split(' ')[-1]
+                missing_key = repr(e).split(' ')[-1]
                 err = '{} (core) has no {} (property)'.format(
                         core['core'], missing_key)
                 raise MalformedConfigException(err)

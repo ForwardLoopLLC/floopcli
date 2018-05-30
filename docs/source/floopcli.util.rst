@@ -1,11 +1,11 @@
 floopcli.util package
-==================
+=====================
 
 Submodules
 ----------
 
 floopcli.util.log module
----------------------
+------------------------
 
 .. automodule:: floopcli.util.log
     :members:
@@ -13,7 +13,7 @@ floopcli.util.log module
     :show-inheritance:
 
 floopcli.util.syscall module
--------------------------
+----------------------------
 
 .. automodule:: floopcli.util.syscall
     :members:
