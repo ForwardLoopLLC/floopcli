@@ -1,5 +1,5 @@
-floopcli.iot package
-=======================
+floopcli.device package
+====================
 
 Submodules
 ----------
