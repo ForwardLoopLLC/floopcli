@@ -1,4 +1,3 @@
-*.egg-info/ 
 **/*.pyc
 **/*.zip
 **/__pycache__*
@@ -10,5 +9,7 @@ docs/build/
 .pytest_cache/
 **/*.backup*
 .coverage
+.coverage*
 floop.log
 floop.json
+floopcli.egg-info/
