@@ -1,17 +1,16 @@
 import logging
 import sys
+import pytest
 import os
 import signal
 
-from os.path import isfile, isdir, expanduser
 from subprocess import check_output
-from typing import TypeVar
-
+from os.path import isfile, isdir, expanduser
 from floopcli.util.syscall import syscall, SystemCallException
 
 logger = logging.getLogger(__name__)
 
-def verbose(): # type: () -> bool
+def verbose() -> bool:
     '''
     Check whether verbose mode is enabled
 
@@ -98,9 +97,6 @@ class CorePSException(Exception):
     '''
     pass
 
-CoreType = TypeVar('CoreType', bound='Core')
-'''Generic self core type'''
-
 class Core(object):
     '''
     Handles initializing and interacting with a target core
@@ -116,18 +112,17 @@ class Core(object):
         user (str):
     '''
     def __init__(self,
-            address,
-            port,
-            target_source,
-            group,
-            host_docker_machine_bin,
-            host_key,
-            host_rsync_bin,
-            host_source,
-            core,
-            user,
-            **kwargs): 
-        # type: (str, str, str, str, str, str, str, str, str, str, str) -> None
+            address: str,
+            port: str,
+            target_source: str,
+            group: str,
+            host_docker_machine_bin: str,
+            host_key: str,
+            host_rsync_bin: str,
+            host_source: str,
+            core: str,
+            user: str,
+            **kwargs: str) -> None:
 
         self.address = address
         '''Core IP address (reachable by SSH)'''
@@ -153,61 +148,61 @@ class Core(object):
         '''Core SSH user on the target'''
 
     @property
-    def address(self): # type: (CoreType) -> str
+    def address(self) -> str:
         return self.__address
 
     @address.setter
-    def address(self, value): # type: (CoreType, str) -> None
+    def address(self, value: str) -> None:
         if hasattr(self, 'address'):
             raise CannotSetImmutableAttribute('address')
         self.__address = value
 
     @property
-    def port(self): # type: (CoreType) -> str
+    def port(self) -> str:
         return self.__port
 
     @port.setter
-    def port(self, value): # type: (CoreType, str) -> None
+    def port(self, value: str) -> None:
         if hasattr(self, 'port'):
             raise CannotSetImmutableAttribute('port')
         self.__port = value
 
     @property
-    def target_source(self): # type: (CoreType) -> str
+    def target_source(self) -> str:
         return self.__target_source
 
     @target_source.setter
-    def target_source(self, value): # type: (CoreType, str) -> None
+    def target_source(self, value: str) -> None:
         if hasattr(self, 'target_source'):
             raise CannotSetImmutableAttribute('target_source')
         self.__target_source = value
 
     @property
-    def group(self): # type: (CoreType) -> str
+    def group(self) -> str:
         return self.__group
 
     @group.setter
-    def group(self, value): # type: (CoreType, str) -> None
+    def group(self, value: str) -> None:
         if hasattr(self, 'group'):
             raise CannotSetImmutableAttribute('group')
         self.__group = value
 
     @property
-    def host_docker_machine_bin(self): # type: (CoreType) -> str
+    def host_docker_machine_bin(self) -> str:
         return self.__host_docker_machine_bin
 
     @host_docker_machine_bin.setter
-    def host_docker_machine_bin(self, value): # type: (CoreType, str) -> None
+    def host_docker_machine_bin(self, value: str) -> None:
         if hasattr(self, 'host_docker_machine_bin'):
             raise CannotSetImmutableAttribute('host_docker_machine_bin')
         self.__host_docker_machine_bin = value
 
     @property
-    def host_key(self): # type: (CoreType) -> str
+    def host_key(self) -> str:
         return self.__host_key
 
     @host_key.setter
-    def host_key(self, value): # type: (CoreType, str) -> None
+    def host_key(self, value: str) -> None:
         '''
         SSH key setter
 
@@ -228,21 +223,21 @@ class Core(object):
         self.__host_key = value
 
     @property
-    def host_rsync_bin(self): # type: (CoreType) -> str
+    def host_rsync_bin(self) -> str:
         return self.__host_rsync_bin
 
     @host_rsync_bin.setter
-    def host_rsync_bin(self, value): # type: (CoreType, str) -> None
+    def host_rsync_bin(self, value: str) -> None:
         if hasattr(self, 'host_rsync_bin'):
             raise CannotSetImmutableAttribute('host_rsync_bin')
         self.__host_rsync_bin = value
 
     @property
-    def host_source(self): # type: (CoreType) -> str
+    def host_source(self) -> str:
         return self.__host_source
 
     @host_source.setter
-    def host_source(self, value): # type: (CoreType, str) -> None
+    def host_source(self, value: str) -> None:
         if hasattr(self, 'host_source'):
             raise CannotSetImmutableAttribute('host_source')
         if not isdir(value):
@@ -250,21 +245,21 @@ class Core(object):
         self.__host_source = value
 
     @property
-    def core(self): # type: (CoreType) -> str
+    def core(self) -> str:
         return self.__core
 
     @core.setter
-    def core(self, value): # type: (CoreType, str) -> None
+    def core(self, value: str) -> None:
         if hasattr(self, 'core'):
             raise CannotSetImmutableAttribute('core')
         self.__core = value
 
     @property
-    def user(self): # type: (CoreType) -> str
+    def user(self) -> str:
         return self.__user
 
     @user.setter
-    def user(self, value): # type: (CoreType, str) -> None
+    def user(self, value: str) -> None:
         '''
         SSH user setter
 
@@ -282,9 +277,9 @@ class Core(object):
             raise CannotSetImmutableAttribute('user')
 
     def run_ssh_command(self,
-            command,
-            check=True,
-            verbose=False): # type: (str, bool, bool) -> str
+            command: str,
+            check: bool=True,
+            verbose: bool=False) -> str:
         '''
         Run docker-machine SSH command on target core
 
@@ -305,7 +300,7 @@ class Core(object):
         out, _ = syscall(sys_string, check=check, verbose=verbose)
         return out
 
-def __log(core, level, message): # type: (Core, str, str) -> None
+def __log(core: Core, level: str, message: str) -> None:
     '''
     Log message about core to default logger
 
@@ -331,7 +326,7 @@ def __log(core, level, message): # type: (Core, str, str) -> None
 ###  parallelizable methods that act on Core objects
 # these functions are pickle-able, but class methods are NOT
 # so these functions can be passed to multiprocessing.Pool
-def create(core, check=True, timeout=120): # type: (Core, bool, int) -> None
+def create(core: Core, check: bool=True, timeout: int=120) -> None:
     '''
     Parallelizable; create new docker-machine on target core
 
@@ -371,9 +366,9 @@ def create(core, check=True, timeout=120): # type: (Core, bool, int) -> None
             __log(core, 'info', outd)
     except SystemCallException as e:
         __log(core, 'error', 'Create timed out')
-        raise CoreCreateException(repr(e))
+        raise CoreCreateException(str(e))
 
-def push(core, check=True): # type: (Core, bool) -> None
+def push(core: Core, check: bool=True) -> None:
     '''
     Parallelizable; push files from host to target core 
 
@@ -407,10 +402,10 @@ def push(core, check=True): # type: (Core, bool) -> None
         out, err = syscall(sync_string, check=check)
         __log(core, 'info', out)
     except SystemCallException as e:
-        __log(core, 'error', repr(e))
-        raise CoreCommunicationException(repr(e))
+        __log(core, 'error', str(e))
+        raise CoreCommunicationException(str(e))
 
-def build(core, check=True): # type: (Core, bool) -> None
+def build(core: Core, check: bool=True) -> None:
     '''
     Parallelizable; push then build files from host on target core 
 
@@ -439,10 +434,11 @@ def build(core, check=True): # type: (Core, bool) -> None
         out = core.run_ssh_command(meta_build_command, check=check, verbose=verbose())
         __log(core, 'info', out)
     except SystemCallException as e:
-        __log(core, 'error', repr(e))
-        raise CoreBuildException(repr(e))
+        __log(core, 'error', str(e))
+        raise CoreBuildException(str(e))
 
-def run(core, check=True): # type: (Core, bool) -> None
+def run(core: Core,
+        check: bool=True) -> None:
     '''
     Parallelizable; push, build, then run files from host on target core 
 
@@ -471,10 +467,11 @@ def run(core, check=True): # type: (Core, bool) -> None
         out = core.run_ssh_command(command=run_command, check=check, verbose=verbose())
         __log(core, 'info', out)
     except SystemCallException as e:
-        __log(core, 'error', repr(e))
-        raise CoreRunException(repr(e))
+        __log(core, 'error', str(e))
+        raise CoreRunException(str(e))
 
-def ps(core, check=True): # type: (Core, bool) -> None
+def ps(core: Core,
+        check: bool=True) -> None:
     '''
     Parallelizable; push, build, then run files from host on target core 
 
@@ -496,11 +493,13 @@ def ps(core, check=True): # type: (Core, bool) -> None
         __log(core, 'info', out)
     # TODO: find a case where core initializes but ps fails
     except SystemCallException as e:
-        __log(core, 'error', repr(e))
-        raise CorePSException(repr(e))
+        __log(core, 'error', str(e))
+        raise CorePSException(str(e))
 
-# need to mangle the name to prevent pytest from erroneously discovering 
-def _test(core, check=True): # type: (Core, bool) -> None
+# pytest thinks this is a test!
+@pytest.mark.skip(reason='Not actually a test!')
+def test(core: Core,
+        check: bool=True) -> None:
     '''
     Parallelizable; push, build, then run test files from host on target core 
 
@@ -537,10 +536,11 @@ def _test(core, check=True): # type: (Core, bool) -> None
         out = core.run_ssh_command(test_run_command, check=check, verbose=verbose())
         __log(core, 'info', out)
     except SystemCallException as e:
-        __log(core, 'error', repr(e))
-        raise CoreTestException(repr(e))
+        __log(core, 'error', str(e))
+        raise CoreTestException(str(e))
 
-def destroy(core, check=True): # type: (Core, bool) -> None
+def destroy(core: Core,
+        check: bool=True) -> None:
     '''
     Parallelizable; destroy core by rm'ing Docker machine
 
@@ -569,5 +569,5 @@ def destroy(core, check=True): # type: (Core, bool) -> None
                 __log(core, 'info', str((out, err)))
     # TODO: find a case where init succeeds but destroy fails, enforce idempotency
     except SystemCallException as e:
-        __log(core, 'error', repr(e))
-        raise CoreDestroyException(repr(e))
+        __log(core, 'error', str(e))
+        raise CoreDestroyException(str(e))

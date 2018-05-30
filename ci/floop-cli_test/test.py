@@ -149,10 +149,10 @@ success () {{
 trap error ERR INT TERM SIGINT SIGTERM SIGHUP
 
 # install system dependencies
-sudo apt-get update && sudo apt-get install -y curl git rsync python2.7 python-pip python3-pip
+sudo apt-get update && sudo apt-get install -y curl git rsync python3-pip
 
 # install awscli to use s3 sync
-sudo pip install awscli
+sudo pip3 install awscli
 
 # configure aws with env variables
 aws configure set aws_access_key_id {awskey} 
@@ -179,21 +179,15 @@ git clone https://github.com/ForwardLoopLLC/floopcli.git
 # checkout the commit that was just pushed
 cd floopcli && git checkout {commit}
 
-# local install typing 
-sudo pip3 install -e .[typing]
-
-# check static typing
-mypy --config-file mypy.ini floopcli
-
-# check python 2 compatibility
-mypy --py2 --config-file mypy.ini floopcli
-
-# local install floopcli, tests, and docs
-sudo pip install --no-cache-dir --force-reinstall -e .[test,docs]
+# local install floopcli and tests
+sudo pip3 install -e .[test]
 
 # build the docs and move to a named folder for s3
 cd docs && make html && mkdir -p s3/floopcli/{branch}/ && \
         cp -r build/html/* s3/floopcli/{branch}/ && cd ..
+
+# check static typing
+mypy --config-file mypy.ini floopcli
 
 # install docker-machine
 base=https://github.com/docker/machine/releases/download/v0.14.0 &&\
