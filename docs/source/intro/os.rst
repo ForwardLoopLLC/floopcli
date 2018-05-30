@@ -51,8 +51,15 @@ Next, create a docker group and add the floop user to group so floop can call Do
 
 Next, you should give your user permission to run sudo without a password. You can do this by adding a line in **/etc/sudoers** on the **target** by running:
 ::
+  
+  # if root user
+  echo "floop ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+Note: if you are not the root user, then you need to update the **/etc/sudoers** file using the *visudo* command. You can do this in one line by running:
+::
  
-  sudo echo "floop  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+  # if non-root user
+  echo "floop ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
 
 If you have a base operating system where you do not start as the root user, you may need to prepend *sudo* to some of the commands above and supply a password. 
 
