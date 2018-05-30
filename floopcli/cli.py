@@ -255,6 +255,23 @@ class FloopCLI(object):
                     message)
             getattr(logger, level)(message)
 
+    def _parallel(self, func): # type: ignore 
+        '''
+        Convenient wrapper for interruptable multiprocessing pool on cores
+
+        Args:
+            func (function):
+                function or partial function to be called in parallel on cores
+        '''
+        try:
+            pool = Pool()
+            pool.map(func, self.cores)
+            pool.close()
+            pool.join()
+        except KeyboardInterrupt:
+            pool.terminate()
+            pool.join()
+
     def config(self): # type: (FloopCLIType) -> None
         '''
         Generate default configuration file
@@ -309,9 +326,7 @@ class FloopCLI(object):
         timeout = 120
         if args.timeout:
             timeout = int(args.timeout)
-        pool = Pool()
-        pool.map(partial(create, timeout=timeout), self.cores)
-        pool.terminate()
+        self._parallel(partial(create, timeout=timeout))
 
     def ps(self): # type: (FloopCLIType) -> None
         '''
@@ -326,9 +341,7 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        pool = Pool()
-        pool.map(ps, self.cores)
-        pool.terminate()
+        self._parallel(ps)
      
     def logs(self): # type: (FloopCLIType) -> None
         '''
@@ -370,9 +383,7 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        pool = Pool()
-        pool.map(push, self.cores)
-        pool.terminate()
+        self._parallel(push)
 
     def build(self): # type: (FloopCLIType) -> None
         '''
@@ -391,9 +402,7 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        pool = Pool()
-        pool.map(build, self.cores)
-        pool.terminate()
+        self._parallel(build)
 
     def run(self): # type: (FloopCLIType) -> None
         '''
@@ -412,9 +421,7 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        pool = Pool()
-        pool.map(run, self.cores)
-        pool.terminate()
+        self._parallel(run)
                 
     def test(self): # type: (FloopCLIType) -> None
         '''
@@ -432,9 +439,7 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        pool = Pool()
-        pool.map(_test, self.cores)
-        pool.terminate()
+        self._parallel(_test)
 
     def destroy(self): # type: (FloopCLIType) -> None
         '''
@@ -450,6 +455,4 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        pool = Pool()
-        pool.map(destroy, self.cores)
-        pool = Pool()
+        self._parallel(destroy)
