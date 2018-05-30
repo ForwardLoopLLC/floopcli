@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import json
 import logging
@@ -12,13 +13,14 @@ from shutil import copyfile
 from socket import gethostname
 from sys import argv, exit, modules, _getframe
 from time import time
+from typing import TypeVar
 
 from floopcli.config import Config, \
         ConfigFileDoesNotExist, \
         MalformedConfigException, \
         UnmetHostDependencyException, \
         RedundantCoreConfigException
-from floopcli.iot.core import build, create, destroy, ps, push, run, test, \
+from floopcli.iot.core import build, create, destroy, ps, push, run, _test, \
         CoreSourceNotFound, \
         CoreBuildException, \
         CoreCreateException, \
@@ -53,7 +55,7 @@ class IncompatibleCommandLineOptions(Exception):
     '''
     pass
 
-def quiet() -> None:
+def quiet(): # type: () -> None
     '''
     Remove console handler from logger to prevent printing to stdout
 
@@ -67,6 +69,9 @@ def quiet() -> None:
         if handler.name == 'console': #type: ignore
             log.removeHandler(handler)
 
+FloopCLIType = TypeVar('FloopCLIType', bound='FloopCLI')
+'''Generic FloopCLI type'''
+
 class FloopCLI(object):
     '''
     CLI entry point, handles all CLI calls
@@ -74,7 +79,7 @@ class FloopCLI(object):
     Parses all CLI commands then calls the appropriate
     class method matching the CLI commands
     '''
-    def __init__(self) -> None:
+    def __init__(self): # type: () -> None
         parser = argparse.ArgumentParser(description='Floop CLI tool',
                 usage=_FLOOP_USAGE_STRING)
         parser.add_argument('--version',
@@ -168,7 +173,7 @@ class FloopCLI(object):
 \tOptions to fix this error:\n\
 \t--------------------------\n\
 \tEdit config file so all core names and addresses are unique\n\
-'''.format(str(e), config_file))
+'''.format(repr(e), config_file))
         except MalformedConfigException:
             exit('''Error| Config file is malformed: {}\n\n\
 \tOptions to fix this error:\n\
@@ -182,7 +187,7 @@ class FloopCLI(object):
 \tOptions to fix this error:\n\
 \t--------------------------\n\
 \tInstall dependency for your operating system\n\
-'''.format(str(e)))
+'''.format(repr(e)))
         except CoreBuildException as e:
             exit('''Error| Build on target core returned non-zero error\n\n\
 \tOptions to fix this error:\n\
@@ -232,7 +237,7 @@ class FloopCLI(object):
 \tTry to re-create the target core: floop create\n\
 ''')
 
-    def __log(self, level: str, message: str) -> None:
+    def __log(self, level, message): # type: (FloopCLIType, str, str) -> None
         '''
         Wrapper for logging CLI methods that do not interact with targets
 
@@ -250,7 +255,24 @@ class FloopCLI(object):
                     message)
             getattr(logger, level)(message)
 
-    def config(self) -> None:
+    def _parallel(self, func): # type: ignore 
+        '''
+        Convenient wrapper for interruptable multiprocessing pool on cores
+
+        Args:
+            func (function):
+                function or partial function to be called in parallel on cores
+        '''
+        try:
+            pool = Pool()
+            pool.map(func, self.cores)
+            pool.close()
+            pool.join()
+        except KeyboardInterrupt:
+            pool.terminate()
+            pool.join()
+
+    def config(self): # type: (FloopCLIType) -> None
         '''
         Generate default configuration file
         '''
@@ -273,8 +295,10 @@ class FloopCLI(object):
             self.__log('info', 
                     'Copied existing config file {} to backup file: {}'.format(
                 _FLOOP_CONFIG_DEFAULT_FILE, backup_file))
-        makedirs(dirname(_FLOOP_CONFIG_DEFAULT_FILE),
-                exist_ok=True)
+        try:
+            makedirs(dirname(_FLOOP_CONFIG_DEFAULT_FILE))
+        except OSError: # dir exists
+            pass
         with open(_FLOOP_CONFIG_DEFAULT_FILE, 'w') as c:
             # using the default_config attribute is kind of a hack
             json.dump(Config(_FLOOP_CONFIG_DEFAULT_FILE).default_config, c)
@@ -285,7 +309,7 @@ class FloopCLI(object):
             )
         )
 
-    def create(self) -> None:
+    def create(self): # type: (FloopCLIType) -> None
         '''
         Create new Docker Machines for each core in the configuration
         '''
@@ -302,10 +326,9 @@ class FloopCLI(object):
         timeout = 120
         if args.timeout:
             timeout = int(args.timeout)
-        with Pool() as pool:
-            pool.map(partial(create, timeout=timeout), self.cores)
+        self._parallel(partial(create, timeout=timeout))
 
-    def ps(self) -> None:
+    def ps(self): # type: (FloopCLIType) -> None
         '''
         Show running applications and tests on all targets
         '''
@@ -318,10 +341,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool() as pool:
-            pool.map(ps, self.cores)
+        self._parallel(ps)
      
-    def logs(self) -> None:
+    def logs(self): # type: (FloopCLIType) -> None
         '''
         Print target logs to the host console
         '''
@@ -344,7 +366,7 @@ class FloopCLI(object):
                 elif not line == '\n':
                     print(line, end="")
 
-    def push(self) -> None:
+    def push(self): # type: (FloopCLIType) -> None
         '''
         Push code from host to all targets
 
@@ -361,10 +383,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool() as pool:
-            pool.map(push, self.cores)
+        self._parallel(push)
 
-    def build(self) -> None:
+    def build(self): # type: (FloopCLIType) -> None
         '''
         Build code on all targets, using Dockerfile in source directory
 
@@ -381,10 +402,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool() as pool:
-            pool.map(build, self.cores)
+        self._parallel(build)
 
-    def run(self) -> None:
+    def run(self): # type: (FloopCLIType) -> None
         '''
         Run code on all targets, using Dockerfile in source directory
 
@@ -401,10 +421,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool()as pool:
-            pool.map(run, self.cores)
+        self._parallel(run)
                 
-    def test(self) -> None:
+    def test(self): # type: (FloopCLIType) -> None
         '''
         Test code on all targets, using Dockerfile.test in source directory
 
@@ -420,10 +439,9 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool()as pool:
-            pool.map(test, self.cores)
+        self._parallel(_test)
 
-    def destroy(self) -> None:
+    def destroy(self): # type: (FloopCLIType) -> None
         '''
         Destroy project, code, and environment on all targets
 
@@ -437,5 +455,4 @@ class FloopCLI(object):
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        with Pool() as pool:
-            pool.map(destroy, self.cores)
+        self._parallel(destroy)

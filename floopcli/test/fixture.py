@@ -6,7 +6,8 @@ from copy import copy
 from os import remove, environ, mkdir
 from os.path import abspath, dirname, isfile, isdir
 
-from shutil import rmtree, which
+from shutil import rmtree
+from distutils.spawn import find_executable as which
 from typing import Dict
 
 from floopcli.config import _FLOOP_CONFIG_DEFAULT_CONFIGURATION
@@ -27,18 +28,18 @@ _DEVICE_TEST_SRC_DIRECTORY = '{}/src/'.format(dirname(
     )
 
 @pytest.fixture(scope='module')
-def fixture_docker_machine_bin():
+def fixture_docker_machine_bin(): # type: () -> str
     return which('docker-machine') 
 
 @pytest.fixture(scope='module')
-def fixture_rsync_bin():
+def fixture_rsync_bin(): # type: () -> str
     return which('rsync') 
 
 @pytest.fixture(scope='function')
-def fixture_default_config_file(request):
+def fixture_default_config_file(request): # type: (pytest.FixtureRequest) -> str
     config_file = FLOOP_TEST_CONFIG_FILE
     config = FLOOP_TEST_CONFIG
-    def cleanup() -> None:
+    def cleanup():
         if isfile(config_file):
             remove(config_file)
     cleanup()
@@ -51,7 +52,7 @@ def fixture_default_config_file(request):
 # refactoring using different env variables
 
 @pytest.fixture(autouse=True)
-def fixture_valid_docker_machine() -> None:
+def fixture_valid_docker_machine(): # type: () -> None
     if environ.get('FLOOP_LOCAL_HARDWARE_TEST'):
         pass
     elif environ.get('FLOOP_CLOUD_TEST'):
@@ -65,7 +66,7 @@ def fixture_valid_docker_machine() -> None:
         syscall(create_local_machine, check=False)
 
 @pytest.fixture(scope='function')
-def fixture_valid_target_directory():
+def fixture_valid_target_directory(): # type: () -> str
     if environ.get('FLOOP_LOCAL_HARDWARE_TEST'):
         return ''
     elif environ.get('FLOOP_CLOUD_TEST'):
@@ -74,7 +75,7 @@ def fixture_valid_target_directory():
         return '/home/floop/floop'
 
 @pytest.fixture(scope='function')
-def fixture_valid_core_config(request) -> Dict[str, str]:
+def fixture_valid_core_config(request): # type: (pytest.FixtureRequest) -> Dict[str, str]
     if environ.get('FLOOP_LOCAL_HARDWARE_TEST'):
         return {}
     elif environ.get('FLOOP_CLOUD_TEST'):
@@ -102,13 +103,13 @@ def fixture_valid_core_config(request) -> Dict[str, str]:
 
 
 @pytest.fixture(scope='function')
-def fixture_invalid_core_core_config(request) -> Dict[str, str]:
+def fixture_invalid_core_core_config(request): # type: (pytest.FixtureRequest) -> Dict[str, str]
     config = fixture_valid_core_config(request)
     config['core'] = 'thisshouldfail'
     return config
 
 @pytest.fixture(scope='function')
-def fixture_valid_config_file(request):
+def fixture_valid_config_file(request): # type: (pytest.FixtureRequest) -> str 
     if environ.get('FLOOP_LOCAL_HARDWARE_TEST'):
         return ''
     elif environ.get('FLOOP_CLOUD_TEST') is not None:
@@ -144,7 +145,7 @@ def fixture_valid_config_file(request):
 #
 
 @pytest.fixture(scope='function')
-def fixture_malformed_config_file(request):
+def fixture_malformed_config_file(request): # type: (pytest.FixtureRequest) -> str 
     config_file = fixture_valid_config_file(request)
     with open(config_file, 'r') as cf:
         data = json.load(cf)
@@ -154,7 +155,7 @@ def fixture_malformed_config_file(request):
     return config_file
 
 @pytest.fixture(scope='function')
-def fixture_invalid_core_config_file(request):
+def fixture_invalid_core_config_file(request): # type: (pytest.FixtureRequest) -> str 
     config_file = fixture_valid_config_file(request)
     with open(config_file, 'r') as cf:
         data = json.load(cf)
@@ -172,7 +173,7 @@ def fixture_invalid_core_config_file(request):
 
 
 @pytest.fixture(scope='function')
-def fixture_incomplete_config_file(request):
+def fixture_incomplete_config_file(request): # type: (pytest.FixtureRequest) -> str 
     config_file = fixture_valid_config_file(request)
     with open(config_file, 'r') as cf:
         data = json.load(cf)
@@ -190,19 +191,19 @@ def fixture_incomplete_config_file(request):
     return config_file
 
 @pytest.fixture(scope='function')
-def fixture_valid_src_directory(request):
+def fixture_valid_src_directory(request): # type: (pytest.FixtureRequest) -> str 
     src_dir = _DEVICE_TEST_SRC_DIRECTORY 
     if isdir(src_dir):
         rmtree(src_dir)
     mkdir(src_dir)
-    def cleanup() -> None:
+    def cleanup(): # type: () -> None
         if isdir(src_dir):
             rmtree(src_dir)
     request.addfinalizer(cleanup)
     return src_dir
 
 @pytest.fixture(scope='function')
-def fixture_buildfile(request):
+def fixture_buildfile(request): # type: (pytest.FixtureRequest) -> str 
     src_dir = fixture_valid_src_directory(request)
     buildfile = '{}/Dockerfile'.format(_DEVICE_TEST_SRC_DIRECTORY)
     buildfile_contents = '''FROM busybox:latest
@@ -212,7 +213,7 @@ RUN sh'''
     return src_dir
 
 @pytest.fixture(scope='function')
-def fixture_failing_buildfile(request):
+def fixture_failing_buildfile(request): # type: (pytest.FixtureRequest) -> str 
     src_dir = fixture_valid_src_directory(request)
     buildfile = '{}/Dockerfile'.format(_DEVICE_TEST_SRC_DIRECTORY)
     buildfile_contents = '''FROM busybox:latest
@@ -222,7 +223,7 @@ RUN apt-get update'''
     return src_dir
 
 @pytest.fixture(scope='function')
-def fixture_failing_runfile(request):
+def fixture_failing_runfile(request): # type: (pytest.FixtureRequest) -> str 
     src_dir = fixture_valid_src_directory(request)
     buildfile = '{}/Dockerfile'.format(_DEVICE_TEST_SRC_DIRECTORY)
     buildfile_contents = '''FROM busybox:latest
@@ -232,7 +233,7 @@ CMD ["apt-get", "update"]'''
     return src_dir
 
 @pytest.fixture(scope='function')
-def fixture_testfile(request):
+def fixture_testfile(request): # type: (pytest.FixtureRequest) -> str 
     src_dir = fixture_valid_src_directory(request)
     testfile = '{}/Dockerfile.test'.format(_DEVICE_TEST_SRC_DIRECTORY)
     testfile_contents = '''FROM busybox:latest
@@ -242,7 +243,7 @@ run sh'''
     return src_dir
 
 @pytest.fixture(scope='function')
-def fixture_failing_testfile(request):
+def fixture_failing_testfile(request): # type: (pytest.FixtureRequest) -> str 
     src_dir = fixture_valid_src_directory(request)
     buildfile = '{}/Dockerfile.test'.format(_DEVICE_TEST_SRC_DIRECTORY)
     buildfile_contents = '''FROM busybox:latest
@@ -252,7 +253,7 @@ CMD ["apt-get", "update"]'''
     return src_dir
 
 @pytest.fixture(scope='function')
-def fixture_redundant_config_file(request):
+def fixture_redundant_config_file(request): # type: (pytest.FixtureRequest) -> str 
     config_file = fixture_valid_config_file(request)
     with open(config_file, 'r') as cf:
         data = json.load(cf)
@@ -267,7 +268,7 @@ def fixture_redundant_config_file(request):
     return config_file
 
 @pytest.fixture(scope='function')
-def fixture_missing_property_config_file(request):
+def fixture_missing_property_config_file(request): # type: (pytest.FixtureRequest) -> str 
     config_file = fixture_valid_config_file(request)
     with open(config_file, 'r') as cf:
         data = json.load(cf)
@@ -282,14 +283,14 @@ def fixture_missing_property_config_file(request):
     return config_file
 
 @pytest.fixture(scope='function')
-def fixture_nonexistent_source_dir_config(request):
+def fixture_nonexistent_source_dir_config(request): # type: (pytest.FixtureRequest) -> str 
     test_config = fixture_valid_core_config(request)
     test_config['host_source'] = \
             'definitely/not/a/real/directory/'
     return test_config 
 
 @pytest.fixture(scope='function')
-def fixture_nonexistent_source_dir_cli_config_file(request):
+def fixture_nonexistent_source_dir_cli_config_file(request): # type: (pytest.FixtureRequest) -> str 
     config_file = fixture_valid_config_file(request)
     with open(config_file, 'r') as cf:
         data = json.load(cf)
@@ -300,13 +301,13 @@ def fixture_nonexistent_source_dir_cli_config_file(request):
     return config_file 
 
 @pytest.fixture(scope='function')
-def fixture_protected_target_directory_config(request):
+def fixture_protected_target_directory_config(request): # type: (pytest.FixtureRequest) -> str 
     test_config = fixture_valid_core_config(request)
     test_config['target_source'] = '/.test/' 
     return test_config 
 
 @pytest.fixture(scope='function')
-def fixture_docker_machine_wrapper(request):
-    def wrapper() -> None:
+def fixture_docker_machine_wrapper(request): # type: ignore
+    def wrapper(): # type: () -> None
         fixture_valid_docker_machine()
     return wrapper
