@@ -13,7 +13,7 @@ from time import time
 Note:
     AWS_DEFAULT_REGION, AWS_ACCESS_KEY, AWS_SECRET_KEY are protected by Lambda
     Add a trailing _ to define your own. Make sure these values are defined
-    in the Lambda dashboard.
+    in the Lambda dashboard..
 '''
 
 def decrypt(key):
