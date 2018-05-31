@@ -29,7 +29,17 @@ If you work with many target devices, it can be useful to have a unique identifi
 ::
 
   sudo rm -f /etc/machine-id && \
-  sudo dbus-uuidgen --ensure=/etc/machine-id
+  sudo rm -f /var/lib/dbus/machine-id
+
+Then change the file **/etc/rc.local** on the target so it ends with the following:
+::
+
+  if [ ! -f /etc/machine-id ]; then
+      dbus-uuidgen --ensure
+      systemd-machine-id-setup
+  fi
+  exit 0
+
 
 Now you can unplug power to your target device, copy the target operating system to your host device, and burn that operating system to multiple SD cards for multiple targets. When each target boots up the first time, it will automatically generate a new, unique *machine-id* in **/etc/machine-id**.
 
