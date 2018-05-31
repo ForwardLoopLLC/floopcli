@@ -22,6 +22,7 @@ Configuring a Target Operating System to Meet Minimum Requirements
 =====================================================================
 You should only need to do the following for each base operating system one time.
 
+If you have a base operating system where you do not start as the root user, you may need to prepend *sudo* to some of the following commands and then supply a password for the non-root user. 
 
 Here we show how to configure a Debian or Ubuntu-like target operating system for use with floop. This has been tested on `Armbian Mainline Kernel for Orange Pi Zero <https://www.armbian.com/orange-pi-zero/>`_.
 
@@ -51,10 +52,16 @@ Next, create a docker group and add the floop user to group so floop can call Do
 
 Next, you should give your user permission to run sudo without a password. You can do this by adding a line in **/etc/sudoers** on the **target** by running:
 ::
- 
-  sudo echo "floop  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+  
+  # if root user
+  echo "floop ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-If you have a base operating system where you do not start as the root user, you may need to prepend *sudo* to some of the commands above and supply a password. 
+Note: if you are not the root user, then you need to update the **/etc/sudoers** file using the *visudo* command. You can do this in one line by running:
+::
+ 
+  # if non-root user
+  echo "floop ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR='tee -a' visudo
+
 
 Next, make sure that your floop user has passwordless SSH access from your **host**. Do this on the **target** by running:
 ::
@@ -70,6 +77,11 @@ On your **host**, if you do not already have an SSH key, then generate a new one
   ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
 Copy and paste the contents of the host file **~/.ssh/id_rsa.pub** to the target file **/home/floop/.ssh/authorized_keys**.
+
+In order to make your **sshd_config** changes take effect you need to restart the SSH daemon so it reloads the configuration file. You can do this by running the following on the **target**:
+::
+
+  service ssh restart
 
 You can test that your sudo and SSH configuration changes succeeded by running the following from the **host**:
 ::

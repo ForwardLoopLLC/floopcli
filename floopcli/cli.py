@@ -263,14 +263,14 @@ class FloopCLI(object):
             func (function):
                 function or partial function to be called in parallel on cores
         '''
+        pool = Pool()
         try:
-            pool = Pool()
-            pool.map(func, self.cores)
-            pool.close()
-            pool.join()
+            # handle interrupt with python 2 hack (python bug 8296)
+            # don't block, timeout after the sun supernovas
+            pool.map_async(func, self.cores).get(1e100)
         except KeyboardInterrupt:
             pool.terminate()
-            pool.join()
+            pass
 
     def config(self): # type: (FloopCLIType) -> None
         '''

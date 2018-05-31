@@ -30,7 +30,7 @@ def validate_secret(event):
     valid = hmac.compare_digest(digest.encode('utf-8'), sig.encode('utf-8'))
     return valid
 
-    def get_client(service):
+def get_client(service):
     return boto3.client(
         service_name = service,
         region_name = decrypt('AWS_DEFAULT_REGION_'), 
@@ -84,19 +84,6 @@ def lambda_handler(event, context):
             'statusCode': 400,
             'body': json.dumps({'input': event, 'error' : 'No branch?'})
         }
-    # only run CI for when code changes
-    git_event = event['headers']['X-Github-Event']
-    if git_event == 'push':
-        pass
-    #elif git_event == 'pull':
-    #    git_action = body['action']
-    #    if git_action in ['opened', 'edited', 'reopened']:
-    #        pass
-    #else:
-    #    return {
-    #        'statusCode': 200,
-    #        'body': json.dumps({'input': event, 'info' : ''})
-    #    }
         
     ec2 = get_client('ec2')
 
@@ -251,7 +238,7 @@ trap success EXIT
         InstanceType=os.environ.get('DEFAULT_INSTANCE_TYPE') or 't2.nano',
         MinCount=1,
         MaxCount=1,
-        InstanceInitiatedShutdownBehavior='stop',
+        InstanceInitiatedShutdownBehavior='terminate',
         UserData=init_script,
         KeyName='FLOOP_CLI_KEY'
     )
