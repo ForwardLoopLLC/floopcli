@@ -265,12 +265,11 @@ class FloopCLI(object):
         '''
         pool = Pool()
         try:
-            # handle interrupt with python 2 hack (python bug 8296)
-            # don't block, timeout after the sun supernovas
-            pool.map_async(func, self.cores).get(1e100)
+            # handle interrupt with python 2 hack (python 2: bug 8296)
+            # don't block, timeout for the largest 64 bit signed integer (python 3)
+            pool.map_async(func, self.cores).get(9223372036)
         except KeyboardInterrupt:
             pool.terminate()
-            pass
 
     def config(self): # type: (FloopCLIType) -> None
         '''
