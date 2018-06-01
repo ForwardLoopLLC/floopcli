@@ -2,8 +2,8 @@ floop
 =====
 
 
-.. image:: http://docs.forward-loop.com/floopcli/0.0.1a4/status/build-status.png
-   :target: http://docs.forward-loop.com/floopcli/0.0.1a4/status/build-status.html
+.. image:: http://docs.forward-loop.com/floopcli/dev/status/build-status.png
+   :target: http://docs.forward-loop.com/floopcli/dev/status/build-status.html
 
 Note: this repository is in the alpha development stage. We recommend you always pull or upgrade to the latest version. 
 
