@@ -17,10 +17,12 @@ FLOOP_TEST_CONFIG_FILE = './floop.json'
 
 FLOOP_TEST_CONFIG = _FLOOP_CONFIG_DEFAULT_CONFIGURATION
 
+# you need to pass FLOOP_CLOUD_CORES as an env variable
 _TEST_FLOOP_CLOUD_CORES = environ.get('FLOOP_CLOUD_CORES')
 
 _TEST_CORE_NAME = 'core0' 
 if _TEST_FLOOP_CLOUD_CORES is not None:
+    # you need to pass FLOOP_CLOUD_CORES as an env variable
     _TEST_CORE_NAME = _TEST_FLOOP_CLOUD_CORES.split(':')[0]
 
 _DEVICE_TEST_SRC_DIRECTORY = '{}/src/'.format(dirname(
@@ -85,6 +87,8 @@ def fixture_valid_core_config(request): # type: (pytest.FixtureRequest) -> Dict[
                 'group' : 'group0',
                 'host_docker_machine_bin' : fixture_docker_machine_bin(), 
                 'host_key' :  '~/.ssh/id_rsa', 
+                'build_file' : 'Dockerfile',
+                'test_file' : 'Dockerfile.test',
                 'host_rsync_bin' : fixture_rsync_bin(),
                 'host_source' : fixture_valid_src_directory(request),
                 'core' : _TEST_CORE_NAME,
@@ -96,6 +100,8 @@ def fixture_valid_core_config(request): # type: (pytest.FixtureRequest) -> Dict[
                 'group' : 'group0',
                 'host_docker_machine_bin' : fixture_docker_machine_bin(), 
                 'host_key' :  '~/.ssh/id_rsa', 
+                'build_file' : 'Dockerfile',
+                'test_file' : 'Dockerfile.test',
                 'host_rsync_bin' : fixture_rsync_bin(),
                 'host_source' : fixture_valid_src_directory(request),
                 'core' : _TEST_CORE_NAME, 

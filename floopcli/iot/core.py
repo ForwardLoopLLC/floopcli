@@ -124,6 +124,8 @@ class Core(object):
             host_key,
             host_rsync_bin,
             host_source,
+            build_file,
+            test_file,
             core,
             user,
             **kwargs): 
@@ -145,6 +147,10 @@ class Core(object):
         '''Path on host to rsync binary'''
         self.host_source = host_source
         '''Path on host to source file directory'''
+        self.build_file = build_file
+        '''Relative path to build file from host_source'''
+        self.test_file = test_file
+        '''Relative path to test file from host_source'''
         self.core = core.replace(' ','').replace('-','')
         '''Core name (must match Docker machine core, if machine already exists)
         During initialization, all machine cores will have spaces and -'s removed
@@ -248,6 +254,26 @@ class Core(object):
         if not isdir(value):
             raise CoreSourceNotFound(value)
         self.__host_source = value
+
+    @property
+    def build_file(self): # type: (CoreType) -> str
+        return self.__build_file
+
+    @build_file.setter
+    def build_file(self, value): # type: (CoreType, str) -> None
+        if hasattr(self, 'build_file'):
+            raise CannotSetImmutableAttribute('build_file')
+        self.__build_file = value 
+
+    @property
+    def test_file(self): # type: (CoreType) -> str
+        return self.__test_file
+
+    @test_file.setter
+    def test_file(self, value): # type: (CoreType, str) -> None
+        if hasattr(self, 'test_file'):
+            raise CannotSetImmutableAttribute('test_file')
+        self.__test_file = value 
 
     @property
     def core(self): # type: (CoreType) -> str
@@ -428,12 +454,14 @@ def build(core, check=True): # type: (Core, bool) -> None
             build commands returned non-zero exit code
     '''
 
-    build_file = '{}/Dockerfile'.format(core.host_source)
-    if not isfile(build_file) or build_file is None:
-        __log(core, 'error', 'Core build file not found: {}'.format(build_file))
-        raise CoreBuildFileNotFound(build_file)
+    host_build_file = '{}/{}'.format(core.host_source, core.build_file)
+    if not isfile(host_build_file) or core.build_file is None:
+        __log(core, 'error', 'Core build file not found: {}'.format(host_build_file))
+        raise CoreBuildFileNotFound(host_build_file)
+    target_build_file = '{}/{}'.format(core.target_source, core.build_file)
     push(core)
-    meta_build_command = 'docker build -t floop {}/'.format(core.target_source)
+    meta_build_command = 'docker build -f {} -t floop {}/'.format(
+            target_build_file, core.target_source)
     __log(core, 'info', meta_build_command)
     try:
         out = core.run_ssh_command(meta_build_command, check=check, verbose=verbose())
@@ -516,18 +544,20 @@ def _test(core, check=True): # type: (Core, bool) -> None
         :py:class:`floopcli.iot.core.CoreTestException`:
             test commands returned non-zero exit code
     '''
-    test_file = '{}/Dockerfile.test'.format(core.host_source)
-    if not isfile(test_file) or test_file is None:
-        __log(core, 'error', 'Test file not found: {}'.format(test_file))
-        raise CoreTestFileNotFound(test_file)
+    host_test_file = '{}/{}'.format(core.host_source, core.test_file)
+    if not isfile(host_test_file) or core.test_file is None:
+        __log(core, 'error', 'Test file not found: {}'.format(core.test_file))
+        raise CoreTestFileNotFound(core.test_file)
+    target_test_file = '{}/{}'.format(core.target_source, core.test_file)
     push(core)
     try:
         rm_command = 'docker rm -f flooptest || true'
         __log(core, 'info', rm_command)
         out = core.run_ssh_command(rm_command, check=check, verbose=verbose())
         __log(core, 'info', out)
-        test_build_command = 'docker build -t flooptest -f {}/{} {}'.format(
-                core.target_source, test_file.split('/')[-1], core.target_source)
+        test_build_command = 'docker build -f {} -t flooptest {}/'.format(
+                target_test_file,
+                core.target_source)
         __log(core, 'info', test_build_command)
         out = core.run_ssh_command(test_build_command, check=check, verbose=verbose())
         __log(core, 'info', out)

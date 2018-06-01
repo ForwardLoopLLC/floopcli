@@ -20,7 +20,7 @@ def syscall(command, check=False,
         check (bool):
             whether to check for non-zero exit code
         verbose (bool):
-            if True, prints command output to stdout
+            if True, streams command output to stdout
 
     Raises:
         :py:class:`floopcli.util.SystemCallException`:
@@ -31,12 +31,14 @@ def syscall(command, check=False,
             tuple of command output to (stdout, stderr)
     '''
     command_ = split(command)
-    process = subprocess.Popen(command_, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(command_, stdout=subprocess.PIPE)
     out = ''
-    for line in process.stdout: # type: ignore
+    for line in iter(process.stdout.readline, b''): # type: ignore
         line = line.decode('utf-8')
         out += line
         if verbose:
+            # this sits below the logger, so removing the console handler 
+            # would not silence this print
             stdout.write(line)
     _, err = process.communicate()
     if err is not None:

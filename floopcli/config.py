@@ -18,7 +18,9 @@ _FLOOP_CONFIG_DEFAULT_CONFIGURATION = {
         'group0' :{
             'cores' : {
                 'default': {
-                    'host_source' : './'
+                    'host_source' : './',
+                    'build_file' : 'Dockerfile',
+                    'test_file' : 'Dockerfile.test'
                 },
                 'core0' : {
                     'target_source' : '/home/floop/floop/',
