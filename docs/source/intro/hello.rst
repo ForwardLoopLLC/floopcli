@@ -281,11 +281,11 @@ This will generate a default configuration called **floop.json**.
 This configuration is based on the following default values (this is a Python dictionary that gets written to JSON):
 
 .. literalinclude:: ../../../floopcli/config.py
-    :lines: 10-32
+    :lines: 10-35
 
 :subscript:`(Note: The calls to the *which* function automatically set the path of docker-machine and rsync as they are installed on your system. If needed, you can edit floop.json to set the paths to each binary dependency. This may be useful if you need to use a different version of docker-machine or rsync than the default version for your system.)`
 
-From this we can describe the default configuration in plain language. All groups use the same rsync and docker-machine binaries. We define one group called *group0*. All cores in *group0* look to the *host_source* directory as their source code directory on the host. Within *group0* there is one core called *core0* that we can reach at its *address* using SSH access via the *user* and *host_key* on the host. When using floop, the *host_source* for *group0* will be pushed to *target_source* on *core0*.
+From this we can describe the default configuration in plain language. All groups use the same rsync and docker-machine binaries. We define one group called *group0*. All cores in *group0* look to the *host_source* directory as their source code directory on the host. Within *group0* there is one core called *core0* that we can reach at its *address* using SSH access via the *user* and *host_key* on the host. When using floop, the *host_source* for *group0* will be pushed to *target_source* on *core0*. When floop builds the the build and run environment on the target, it uses the *build_file* in the *host_source* folder, which appears as the *build_file* for the *target_source* on the target. The same is true for the *test_file* when floop builds the test environment. Both *build_file* and *test_file* are relative file names inside the *host_source* and the *target_source*.
 
 floop uses a compact configuration format that defines *default* key-values for groups and cores. A **group** is a collection of **cores**. A **core** runs an operating system. floop automatically flattens the configuration file as follows:
     - *default* key-values for **groups** become key-values for all groups
@@ -299,6 +299,8 @@ Applying the flattening procedure to the default configuration reveals that it d
     [
         {
             'host_source': './', 
+            'build_file' : 'Dockerfile',
+            'test_file' : 'Dockerfile.test',
             'core': 'core0', 
             'address': '192.168.1.100', 
             'host_docker_machine_bin': '/usr/local/bin/docker-machine', 
@@ -379,7 +381,7 @@ In order to build your code on all of your targets, you can run:
 
 :subscript:`(Note: build uses Docker under the hood, so all builds are cached. This means that first build usually takes much longer than subsequent builds.)``
 
-Optionally, you can add the *-v* flag to see that floop always pushes before a build then builds your run environment using the **Dockerfile** for your app. 
+Optionally, you can add the *-v* flag to see that floop always pushes before a build then builds your run environment using the *build_file* in the *target_source* for each core that builds your app. 
 
 8. Test Code on Targets
 =======================
@@ -388,7 +390,7 @@ You can run your test environment for your app by running:
 
   floop test
 
-Optionally, you can add the *-v* flag to see that floop always pushes and always builds and runs the test environment using the **Dockerfile.test** for your app.  
+Optionally, you can add the *-v* flag to see that floop always pushes and always builds and runs the test environment using the *test_file* in the *target_source* for each core that tests your app your app.  
 
 You should see your tests run on all targets.
 
@@ -399,7 +401,7 @@ You can run your run environment for your app by running:
 
   floop run 
 
-Optionally, you can add the *-v* flag to see that floop always pushes and always builds and runs the run environment using the **Dockerfile** for your app.  
+Optionally, you can add the *-v* flag to see that floop always pushes and always builds and runs the run environment using the *build_file* in the *target_source* for each core that builds your app.
 
 You should see all targets greet you with "Hello, World!"
 
