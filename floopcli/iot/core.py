@@ -129,7 +129,7 @@ class Core(object):
             core,
             user,
             **kwargs): 
-        # type: (str, str, str, str, str, str, str, str, str, str, str) -> None
+        # type: (str, str, str, str, str, str, str, str, str, str, str, str, str) -> None
 
         self.address = address
         '''Core IP address (reachable by SSH)'''

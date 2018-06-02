@@ -9,8 +9,9 @@ class SystemCallException(Exception):
     '''
     pass
 
-def syscall(command, check=False,
-        verbose=False): # type: (str, bool, bool) -> Tuple[str, str] 
+# TODO: figure out consistent Python 2/3 typing
+def syscall(command, check=False, # type: ignore
+        verbose=False): 
     '''
     Call system to run system command
 
@@ -33,6 +34,8 @@ def syscall(command, check=False,
     command_ = split(command)
     process = subprocess.Popen(command_, stdout=subprocess.PIPE)
     out = ''
+    # Python 2: str to bytes?
+    # Python 3: unicode to str?
     for line in iter(process.stdout.readline, b''): # type: ignore
         line = line.decode('utf-8')
         out += line
