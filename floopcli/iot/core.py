@@ -357,7 +357,7 @@ def __log(core, level, message): # type: (Core, str, str) -> None
 ###  parallelizable methods that act on Core objects
 # these functions are pickle-able, but class methods are NOT
 # so these functions can be passed to multiprocessing.Pool
-def create(core, check=True, timeout=120): # type: (Core, bool, int) -> None
+def create(core, check=True, timeout=240): # type: (Core, bool, int) -> None
     '''
     Parallelizable; create new docker-machine on target core
 
