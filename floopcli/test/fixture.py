@@ -223,7 +223,7 @@ def fixture_failing_buildfile(request): # type: (pytest.FixtureRequest) -> str
     src_dir = fixture_valid_src_directory(request)
     buildfile = '{}/Dockerfile'.format(_DEVICE_TEST_SRC_DIRECTORY)
     buildfile_contents = '''FROM busybox:latest
-RUN apt-get update''' 
+RUN cp''' 
     with open(buildfile, 'w') as bf:
         bf.write(buildfile_contents)
     return src_dir

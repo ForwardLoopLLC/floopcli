@@ -51,5 +51,6 @@ def syscall(command, check=False, # type: ignore
             if process.returncode != 0:
                 raise SystemCallException(err)
         return (out, err)
-    except (KeyboardInterrupt, Exception):
+    except (KeyboardInterrupt, SystemCallException) as e:
         process.kill()
+        raise e

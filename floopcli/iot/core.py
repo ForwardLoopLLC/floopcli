@@ -466,7 +466,7 @@ def build(core, check=True): # type: (Core, bool) -> None
     try:
         out = core.run_ssh_command(meta_build_command, check=check, verbose=verbose())
         __log(core, 'info', out)
-    except SystemCallException as e:
+    except (SystemCallException, CoreBuildException) as e:
         __log(core, 'error', repr(e))
         raise CoreBuildException(repr(e))
 
