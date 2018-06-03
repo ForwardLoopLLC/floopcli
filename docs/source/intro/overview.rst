@@ -5,7 +5,13 @@ Overview
 ========
 floop is a tool for standardizing code development between a host device and one or more target test devices. floop lets developers write code on one machine and test that same code on many devices at once. This has many applications, including prototyping, developing, and testing sensors and IoT devices.
 
-.. image:: ../img/host_target.png
+See floop in action here:
+
+.. raw:: html
+
+    <a href="https://www.youtube.com/watch?v=rT3D8THxBn4)" alt="floop">
+        <img src="https://img.youtube.com/vi/rT3D8THxBn4/0.jpg">
+    </a>
 
 When to Use Floop
 =================

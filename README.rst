@@ -22,6 +22,9 @@ documentation website <http://docs.forward-loop.com>`_.
 
 Learn more about Forward Loop at our `company website <http://forward-loop.com>`_.
 
+See floop running in three languages on four ARM devices at the same time:
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/rT3D8THxBn4/0.jpg)](https://www.youtube.com/watch?v=rT3D8THxBn4)
+
 Installation
 ------------
 You can download the latest official release as a pip package:
