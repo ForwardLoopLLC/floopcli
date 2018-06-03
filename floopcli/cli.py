@@ -268,8 +268,10 @@ class FloopCLI(object):
             # handle interrupt with python 2 hack (python 2: bug 8296)
             # don't block, timeout for the largest 64 bit signed integer (python 3)
             pool.map_async(func, self.cores).get(9223372036)
-        except KeyboardInterrupt:
-            pool.terminate()
+        except (KeyboardInterrupt, Exception) as e:
+            pool.close()
+            pool.join()
+            raise e
 
     def config(self): # type: (FloopCLIType) -> None
         '''

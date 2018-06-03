@@ -68,9 +68,9 @@ def fixture_malformed_floop_configs(request):
 
 def test_cli_build_fail_fails(fixture_valid_config_file, fixture_failing_buildfile):
     with pytest.raises(SystemCallException):
-        syscall(
+        print(syscall(
             'floop -c {} build'.format(
-                fixture_valid_config_file), check=True)
+                fixture_valid_config_file), check=True))
 
 def test_cli_run_fail_fails(fixture_valid_config_file, fixture_failing_runfile):
     with pytest.raises(SystemCallException):

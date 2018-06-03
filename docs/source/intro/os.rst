@@ -94,13 +94,33 @@ You should change *your.device.ip.address* to the IP address of your target devi
 
 If you see the line you added above to permit passwordless sudo, then your sudo configuration succeeded.
 
-If you are working with `Raspbian <https://www.raspbian.org/>`_, then you may need to perform the following additional step. You need to change the distribution ID from *raspbian* to *debian* so docker-machine recognizes that you are running a Debian-based operating system. You can do this by running the following command from your **host**:
-::
-  
-  ssh -i ~/.ssh/id_rsa \
-  floop@your.device.ip.address \
-  sed -ri 's/ID=raspbian/ID=debian/g' /etc/os-release
 
-Your operating system is now configured so that it can be used with floop. From your host, you can make a disk image of the configured operating system and copy that image and run it on other devices.
+Configuring Common Operating Systems
+------------------------------------
+The following section explains additional steps for how to configure common operating systems.
+
+.. tabs::
+
+  .. tab:: Armbian
+
+    There should be no additional steps to get started.
+
+  .. tab:: Raspbian
+
+    If you are working with `Raspbian <https://www.raspbian.org/>`_, then you may need to perform the following additional steps.
+    
+    Install Docker. Currently, Docker Machine cannot install Docker on Raspbian, so you need to install it on the target directly. You can do this by running the following on your **target**:
+    ::
+
+      curl -fsSL get.docker.com | sh
+    
+    You then need to change the distribution ID from *raspbian* to *debian* so docker-machine recognizes that you are running a Debian-based operating system. You can do this by running the following command from your **host**:
+    ::
+      
+      ssh -i ~/.ssh/id_rsa \
+      floop@your.device.ip.address \
+      sed -ri 's/ID=raspbian/ID=debian/g' /etc/os-release
+
+    Your operating system is now configured so that it can be used with floop. From your host, you can make a disk image of the configured operating system and copy that image and run it on other devices.
 
 For more options (not requirements) for configuring your target operating system, check the :doc:`best`

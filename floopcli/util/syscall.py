@@ -9,8 +9,9 @@ class SystemCallException(Exception):
     '''
     pass
 
-def syscall(command, check=False,
-        verbose=False): # type: (str, bool, bool) -> Tuple[str, str] 
+# TODO: figure out consistent Python 2/3 typing
+def syscall(command, check=False, # type: ignore
+        verbose=False): 
     '''
     Call system to run system command
 
@@ -20,7 +21,7 @@ def syscall(command, check=False,
         check (bool):
             whether to check for non-zero exit code
         verbose (bool):
-            if True, prints command output to stdout
+            if True, streams command output to stdout
 
     Raises:
         :py:class:`floopcli.util.SystemCallException`:
@@ -31,17 +32,28 @@ def syscall(command, check=False,
             tuple of command output to (stdout, stderr)
     '''
     command_ = split(command)
-    process = subprocess.Popen(command_, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out = ''
-    for line in process.stdout: # type: ignore
-        line = line.decode('utf-8')
-        out += line
-        if verbose:
-            stdout.write(line)
-    _, err = process.communicate()
-    if err is not None:
-        err = err.decode('utf-8')
-    if check:
-        if process.returncode != 0:
-            raise SystemCallException(err)
-    return (out, err)
+    try:
+        process = subprocess.Popen(command_, stdout=subprocess.PIPE)
+        out = ''
+        # Python 2: str to bytes?
+        # Python 3: unicode to str?
+        for line in iter(process.stdout.readline, b''): # type: ignore
+            line = line.decode('utf-8')
+            out += line
+            if verbose:
+                # this sits below the logger, so removing the console handler 
+                # would not silence this print
+                stdout.write(line)
+        _, err = process.communicate()
+        if err is not None:
+            err = err.decode('utf-8')
+        if check:
+            if process.returncode != 0:
+                raise SystemCallException(err)
+        return (out, err)
+    except (KeyboardInterrupt, SystemCallException) as e:
+        try:
+            process.kill()
+        except OSError:
+            pass
+        raise e

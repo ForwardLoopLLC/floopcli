@@ -46,10 +46,26 @@ Now you can unplug power to your target device, copy the target operating system
 Applications and Dockerfiles
 ============================
 
-Use *library* Docker Images
----------------------------
-When working with ARM targets, you should always base your **Dockerfile.test** and **Dockerfile** environments on images from the `Docker Hub Library <https://hub.docker.com/u/library/>`_. These images `work across platforms <https://blog.docker.com/2017/09/docker-official-images-now-multi-platform/>`_, including x86 and ARM. It is not guaranteed that other base images will build correctly on ARM hardware. In practice, this means that all Dockerfiles should start with:
-::
-    FROM library/...
+Use Docker Images for Your Version of ARM
+-----------------------------------------
+When working with ARM targets, you should always base your **Dockerfile.test** and **Dockerfile** environments on images that match the ARM version of your target hardware operating system. 
 
-If you need a language or environment that is not provided as a *library* image, you can often build one yourself by installing on a base image such as **library/debian**.
+.. tabs::
+
+  .. tab:: ARMv7
+
+    This works for Armbian on Orange Pi.
+
+    For ARMv7, you should use images from the `Docker Hub Library <https://hub.docker.com/u/library/>`_. These images `work across platforms <https://blog.docker.com/2017/09/docker-official-images-now-multi-platform/>`_, including x86 and ARMv7. It is not guaranteed that other base images will build correctly on ARMv7 hardware. In practice, this means that all Dockerfiles for all ARMv7 devices should start with:
+    ::
+        FROM library/...
+
+    If you need a language or environment that is not provided as a *library* image, you can often build one yourself by installing on a base image such as **library/debian**.
+
+  .. tab:: ARMv6
+
+    This works for Raspbian on Raspberry Pi.
+
+    For ARMv6 images, you should use images from the `arm32v6 Library <https://hub.docker.com/u/arm32v6/>`_. These images only work for ARMv6 devices. In practice, this means that all Dockerfiles for all ARMv7 devices should start with:
+    ::
+        FROM arm32v6/...
