@@ -7,11 +7,8 @@ floop is a tool for standardizing code development between a host device and one
 
 See floop in action here:
 
-.. raw:: html
-
-    <a href="https://www.youtube.com/watch?v=rT3D8THxBn4)" alt="floop">
-        <img src="https://img.youtube.com/vi/rT3D8THxBn4/0.jpg">
-    </a>
+.. image:: https://img.youtube.com/vi/rT3D8THxBn4/0.jpg
+   :target: https://www.youtube.com/watch?v=rT3D8THxBn4
 
 When to Use Floop
 =================
