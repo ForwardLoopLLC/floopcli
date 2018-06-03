@@ -376,7 +376,7 @@ def create(core, check=True, timeout=120): # type: (Core, bool, int) -> None
             'pwd' check failed
     '''
     def timeout_handler(signum, frame): #type: ignore
-        raise SystemCallException('Create core timed out')
+        raise CoreCreateException('Create core timed out')
     create_command = '{} create --driver generic --generic-ip-address {} --generic-ssh-port {} --generic-ssh-user {} --generic-ssh-key {} --engine-storage-driver overlay {}'.format(
         core.host_docker_machine_bin,
         core.address, 

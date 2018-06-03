@@ -32,21 +32,24 @@ def syscall(command, check=False, # type: ignore
             tuple of command output to (stdout, stderr)
     '''
     command_ = split(command)
-    process = subprocess.Popen(command_, stdout=subprocess.PIPE)
-    out = ''
-    # Python 2: str to bytes?
-    # Python 3: unicode to str?
-    for line in iter(process.stdout.readline, b''): # type: ignore
-        line = line.decode('utf-8')
-        out += line
-        if verbose:
-            # this sits below the logger, so removing the console handler 
-            # would not silence this print
-            stdout.write(line)
-    _, err = process.communicate()
-    if err is not None:
-        err = err.decode('utf-8')
-    if check:
-        if process.returncode != 0:
-            raise SystemCallException(err)
-    return (out, err)
+    try:
+        process = subprocess.Popen(command_, stdout=subprocess.PIPE)
+        out = ''
+        # Python 2: str to bytes?
+        # Python 3: unicode to str?
+        for line in iter(process.stdout.readline, b''): # type: ignore
+            line = line.decode('utf-8')
+            out += line
+            if verbose:
+                # this sits below the logger, so removing the console handler 
+                # would not silence this print
+                stdout.write(line)
+        _, err = process.communicate()
+        if err is not None:
+            err = err.decode('utf-8')
+        if check:
+            if process.returncode != 0:
+                raise SystemCallException(err)
+        return (out, err)
+    except (KeyboardInterrupt, Exception):
+        process.kill()
