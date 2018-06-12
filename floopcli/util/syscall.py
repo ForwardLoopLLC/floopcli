@@ -56,4 +56,4 @@ def syscall(command, check=False, # type: ignore
             process.kill()
         except OSError:
             pass
-        raise e
+        raise SystemCallException

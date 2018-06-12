@@ -309,6 +309,7 @@ class Core(object):
 
     def run_ssh_command(self,
             command,
+            privileged=False,
             check=True,
             verbose=False): # type: (str, bool, bool) -> str
         '''
@@ -470,7 +471,7 @@ def build(core, check=True): # type: (Core, bool) -> None
         __log(core, 'error', repr(e))
         raise CoreBuildException(repr(e))
 
-def run(core, check=True): # type: (Core, bool) -> None
+def run(core, privileged=False, check=True): # type: (Core, bool, bool) -> None
     '''
     Parallelizable; push, build, then run files from host on target core 
 
@@ -495,6 +496,9 @@ def run(core, check=True): # type: (Core, bool) -> None
         __log(core, 'info', out)
         run_command = 'docker run --name floop -v {}:/floop/ floop'.format(
                 core.target_source)
+        if privileged:
+            run_command = 'docker run --privileged --name floop -v /var/run/docker.sock:/var/run/docker.sock -v {}:/floop/ floop'.format(
+                    core.target_source)
         __log(core, 'info', run_command)
         out = core.run_ssh_command(command=run_command, check=check, verbose=verbose())
         __log(core, 'info', out)
