@@ -5,7 +5,7 @@ import signal
 
 from os.path import isfile, isdir, expanduser
 from subprocess import check_output
-from typing import TypeVar
+from typing import TypeVar, List
 
 from floopcli.util.syscall import syscall, SystemCallException
 
@@ -107,13 +107,6 @@ class Core(object):
 
     All attributes are immutable. If you try to set an instance
     attribute after initialize, it will raise :py:class:`CannotSetImmutableAttribute`
-
-    Args:
-        address (str):
-        host_docker_machine_bin (str):
-        core (str):
-        ssh_key (str):
-        user (str):
     '''
     def __init__(self,
             address,
@@ -122,14 +115,18 @@ class Core(object):
             group,
             host_docker_machine_bin,
             host_key,
+            host_network,
             host_rsync_bin,
             host_source,
             build_file,
             test_file,
+            privileged,
+            docker_socket,
+            hardware_devices,
             core,
             user,
             **kwargs): 
-        # type: (str, str, str, str, str, str, str, str, str, str, str, str, str) -> None
+        # type: (CoreType, str, str, str, str, str, str, str, str, str, str, str, bool, str, str, str, str) -> None
 
         self.address = address
         '''Core IP address (reachable by SSH)'''
@@ -143,6 +140,8 @@ class Core(object):
         '''Path on host to docker-machine binary'''
         self.host_key = host_key
         '''Path on host to SSH key that works for user'''
+        self.host_network = host_network
+        '''Flag to use core host network'''
         self.host_rsync_bin = host_rsync_bin
         '''Path on host to rsync binary'''
         self.host_source = host_source
@@ -151,6 +150,12 @@ class Core(object):
         '''Relative path to build file from host_source'''
         self.test_file = test_file
         '''Relative path to test file from host_source'''
+        self.privileged = privileged
+        '''Flag to allow privileged container access on core'''
+        self.docker_socket = docker_socket
+        '''Path to core Docker socket'''
+        self.hardware_devices = hardware_devices
+        '''Hardware devices to expose to core Docker'''
         self.core = core.replace(' ','').replace('-','')
         '''Core name (must match Docker machine core, if machine already exists)
         During initialization, all machine cores will have spaces and -'s removed
@@ -234,6 +239,26 @@ class Core(object):
         self.__host_key = value
 
     @property
+    def host_network(self): # type: (CoreType) -> bool 
+        return self.__host_network
+
+    @host_network.setter
+    def host_network(self, value): # type: (CoreType, bool) -> None
+        if hasattr(self, 'host_network'):
+            raise CannotSetImmutableAttribute('host_network')
+        self.__host_network = value
+
+    @property
+    def privileged(self): # type: (CoreType) -> bool 
+        return self.__privileged
+
+    @privileged.setter
+    def privileged(self, value): # type: (CoreType, bool) -> None
+        if hasattr(self, 'privileged'):
+            raise CannotSetImmutableAttribute('privileged')
+        self.__privileged = value
+
+    @property
     def host_rsync_bin(self): # type: (CoreType) -> str
         return self.__host_rsync_bin
 
@@ -242,6 +267,26 @@ class Core(object):
         if hasattr(self, 'host_rsync_bin'):
             raise CannotSetImmutableAttribute('host_rsync_bin')
         self.__host_rsync_bin = value
+
+    @property
+    def docker_socket(self): # type: (CoreType) -> str
+        return self.__docker_socket
+
+    @docker_socket.setter
+    def docker_socket(self, value): # type: (CoreType, str) -> None
+        if hasattr(self, 'docker_socket'):
+            raise CannotSetImmutableAttribute('docker_socket')
+        self.__docker_socket = value
+
+    @property
+    def hardware_devices(self): # type: (CoreType) -> List[str]
+        return self.__hardware_devices
+
+    @hardware_devices.setter
+    def hardware_devices(self, value): # type: (CoreType, List[str]) -> None
+        if hasattr(self, 'hardware_devices'):
+            raise CannotSetImmutableAttribute('hardware_devices')
+        self.__hardware_devices = value
 
     @property
     def host_source(self): # type: (CoreType) -> str
@@ -309,9 +354,8 @@ class Core(object):
 
     def run_ssh_command(self,
             command,
-            privileged=False,
             check=True,
-            verbose=False): # type: (str, bool, bool) -> str
+            verbose=False): # type: (CoreType, str, bool, bool) -> str
         '''
         Run docker-machine SSH command on target core
 
@@ -471,7 +515,7 @@ def build(core, check=True): # type: (Core, bool) -> None
         __log(core, 'error', repr(e))
         raise CoreBuildException(repr(e))
 
-def run(core, privileged=False, check=True): # type: (Core, bool, bool) -> None
+def run(core, check=True): # type: (Core, bool) -> None
     '''
     Parallelizable; push, build, then run files from host on target core 
 
@@ -494,11 +538,18 @@ def run(core, privileged=False, check=True): # type: (Core, bool, bool) -> None
     try:
         out = core.run_ssh_command(command=rm_command, check=check, verbose=verbose())
         __log(core, 'info', out)
-        run_command = 'docker run --name floop -v {}:/floop/ floop'.format(
+        run_command = 'docker run --name floop -v {}:/floop/'.format(
                 core.target_source)
-        if privileged:
-            run_command = 'docker run --privileged --name floop -v /var/run/docker.sock:/var/run/docker.sock -v {}:/floop/ floop'.format(
-                    core.target_source)
+        if core.privileged:
+            run_command = '{} --privileged'.format(run_command)
+            if core.docker_socket != '':
+                run_command = '{} -v {}:/var/run/docker.sock'.format(
+                        run_command, core.docker_socket)
+            if core.host_network:
+                run_command = '{} --network host'.format(run_command)
+        for device in core.hardware_devices:
+            run_command = '{} --device {}'.format(run_command, device)
+        run_command = '{} floop'.format(run_command)
         __log(core, 'info', run_command)
         out = core.run_ssh_command(command=run_command, check=check, verbose=verbose())
         __log(core, 'info', out)

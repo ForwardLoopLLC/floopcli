@@ -20,7 +20,11 @@ _FLOOP_CONFIG_DEFAULT_CONFIGURATION = {
                 'default': {
                     'host_source' : './',
                     'build_file' : 'Dockerfile',
-                    'test_file' : 'Dockerfile.test'
+                    'test_file' : 'Dockerfile.test',
+                    'privileged' : False,
+                    'host_network' : False,
+                    'docker_socket' : '/var/run/docker.sock',
+                    'hardware_devices' : []
                 },
                 'core0' : {
                     'target_source' : '/home/floop/floop/',

@@ -419,13 +419,10 @@ class FloopCLI(object):
         parser.add_argument('-v', '--verbose',
                 help='Print system commands and results to stdout',
                 action='store_true')
-        parser.add_argument('-p', '--privileged',
-                help='Run code on cores in privileged mode',
-                action='store_true')
         args = parser.parse_args(argv[self.command_index:])
         if not args.verbose:
             quiet()
-        self._parallel(partial(run, privileged=args.privileged))
+        self._parallel(run)
                 
     def test(self): # type: (FloopCLIType) -> None
         '''
