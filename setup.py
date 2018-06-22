@@ -34,7 +34,7 @@ extras = {
 
 setup(
     name='floopcli',
-    version='0.0.1a6',
+    version='0.0.1a7',
     description='sensor development and testing tools',
     long_description=long_description,
     long_description_content_type='text/x-rst',
