@@ -281,13 +281,27 @@ This will generate a default configuration called **floop.json**.
 This configuration is based on the following default values (this is a Python dictionary that gets written to JSON):
 
 .. literalinclude:: ../../../floopcli/config.py
-    :lines: 10-35
+    :lines: 10-39
 
 :subscript:`(Note: The calls to the *which* function automatically set the path of docker-machine and rsync as they are installed on your system. If needed, you can edit floop.json to set the paths to each binary dependency. This may be useful if you need to use a different version of docker-machine or rsync than the default version for your system.)`
 
-From this we can describe the default configuration in plain language. All groups use the same rsync and docker-machine binaries. We define one group called *group0*. All cores in *group0* look to the *host_source* directory as their source code directory on the host. Within *group0* there is one core called *core0* that we can reach at its *address* using SSH access via the *user* and *host_key* on the host. When using floop, the *host_source* for *group0* will be pushed to *target_source* on *core0*. When floop builds the the build and run environment on the target, it uses the *build_file* in the *host_source* folder, which appears as the *build_file* for the *target_source* on the target. The same is true for the *test_file* when floop builds the test environment. Both *build_file* and *test_file* are relative file names inside the *host_source* and the *target_source*.
+From this we can describe the default configuration in plain language. 
 
-floop uses a compact configuration format that defines *default* key-values for groups and cores. A **group** is a collection of **cores**. A **core** runs an operating system. floop automatically flattens the configuration file as follows:
+All groups use the same rsync and docker-machine binaries. We define one group called *group0*. All cores in *group0* look to the *host_source* directory as their source code directory on the host. Within *group0* there is one core called *core0* that we can reach at its *address* using SSH access via the *user* and *host_key* on the host. When using floop, the *host_source* for *group0* will be pushed to *target_source* on *core0*. When floop builds the the build and run environment on the target, it uses the *build_file* in the *host_source* folder, which appears as the *build_file* for the *target_source* on the target. The same is true for the *test_file* when floop builds the test environment. Both *build_file* and *test_file* are relative file names inside the *host_source* and the *target_source*.
+
+The *privileged*, *host_network*, *hardware_devices* and *docker_socket* key-values are advanced options. **For the sake of this tutorial, you can leave the default configuration for these options.**
+
+In case you are interested, these key-values configure how floop works with Docker on the target operating system. 
+
+The *privileged* option is equivalent to the **--privileged** flag for Docker. The *privileged* option needs to be enabled in order for *host_network*, *hardware_devices* and/or *docker_socket* to have any effect. 
+
+The *host_network* option is equivalent to the **--net=host** option for Docker. This option allows floop to control target operating system networking through Docker. 
+
+The *hardware_devices* key-values takes a list of file paths to Linux **/dev/** entries for valid hardware peripherals attached to the target device. For each hardware device in the list, floop adds the **--device** flag when running Docker. This allows floop to access hardware peripherals like I2C and GPIO sensors from within Docker. By default, floop expects no hardware devices. 
+
+The *docker_socket* is the path to the target operating system Docker socket. If *docker_socket* is an empty string, then the value is ignored. If *docker_socket* is not an empty string, then floop tries to share *docker_socket* into the container running on each target device. This allows floop to call Docker (and Docker Compose, if installed inside a container) from inside of a container.
+
+For all configurations, floop uses a compact configuration format that defines *default* key-values for groups and cores. A **group** is a collection of **cores**. A **core** runs an operating system. floop automatically flattens the configuration file as follows:
     - *default* key-values for **groups** become key-values for all groups
     - *default* key-values for **cores** become key-values for all cores in a group
     - key-values for specific cores overwrite key-values defined as *default* (for example, if you define *host_source* within *core0* then that will overwrite the *host_source* defined in *default*)
@@ -308,7 +322,11 @@ Applying the flattening procedure to the default configuration reveals that it d
             'group': 'group0', 
             'target_source': '/home/floop/floop/', 
             'host_rsync_bin': '/usr/bin/rsync', 
-            'user': 'floop'
+            'user': 'floop',
+            'privileged' : False,
+            'host_network' : False,
+            'docker_socket' : '/var/run/docker.sock',
+            'hardware_devices' : []
         }
     ]
 
